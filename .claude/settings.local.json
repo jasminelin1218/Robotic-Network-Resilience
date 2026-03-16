@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"from visualizations.gephi_export import export_all; export_all\\(\\)\")",
+      "Bash(conda run --no-capture-output python -c \"import sys; print\\(sys.executable\\)\")",
+      "Read(//Users/sunny/miniconda3/**)",
+      "Read(//Users/sunny/anaconda3/**)",
+      "Read(//Users/sunny/.conda/**)",
+      "Bash(conda info --envs)",
+      "Read(//usr/local/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//Users/sunny/Library/Python/**)",
+      "Bash(/opt/homebrew/bin/python3 -c \"import networkx; import matplotlib; print\\(''OK''\\)\")",
+      "Bash(/Users/sunny/opt/anaconda3/bin/python -c \"import networkx; import matplotlib; import numpy; print\\(''base OK''\\)\")",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/python -c \"import networkx; import matplotlib; import numpy; print\\(''course OK''\\)\")",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/python -c \"from visualizations.gephi_export import export_all; export_all\\(\\)\")",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/python -c \":*)",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/streamlit --version)",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/python run_all.py)",
+      "Bash(/Users/sunny/opt/anaconda3/envs/course/bin/python run_all.py --exp 11 12)",
+      "Bash(ls /Users/sunny/Documents/VSCode/Python/ECE227/ece227_project/outputs/*.png /Users/sunny/Documents/VSCode/Python/ECE227/ece227_project/outputs/*.gif)",
+      "Bash(du -sh outputs/*.png outputs/*.gif)",
+      "Bash(gh repo view jasminelin1218/Robotic-Network-Resilience)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://github.com/jasminelin1218/Robotic-Network-Resilience)",
+      "Bash(/Users/sunny/Documents/VSCode/Python/ECE227/ece227_project/.gitignore:*)",
+      "Bash(git init)",
+      "Bash(git add .)"
+    ]
+  }
+}

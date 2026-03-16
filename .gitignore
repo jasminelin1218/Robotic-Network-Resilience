@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Environments
+.env
+.venv
+venv/
+env/
+
+# VS Code auto-saved figures (generic names — not project outputs)
+outputs/figures/
+
+# Gephi screenshots (user-generated, large)
+outputs/gephi/screenshots/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit
+.streamlit/
+
+# IDEs
+.idea/
+*.swp

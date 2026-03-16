@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECE227 — Network Resilience Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#08090e;--bg1:#0d0f1a;--bg2:#131627;--bg3:#1a1f35;
+  --border:#242840;--border2:#2e3450;
+  --t0:#f0f2ff;--t1:#b8bcda;--t2:#6b7099;--t3:#3d4260;
+  --blue:#4d7eff;--blue2:#2955cc;--cyan:#3dd9c4;
+  --red:#ff4d6a;--amber:#ffb340;--green:#3dd98a;--purple:#9b6dff;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg0);color:var(--t0);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);pointer-events:none;z-index:9999;opacity:.25}
+header{display:flex;align-items:center;gap:18px;padding:12px 28px;background:var(--bg1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--cyan);letter-spacing:.15em;border:1px solid rgba(61,217,196,.3);padding:3px 8px;border-radius:2px}
+header h1{font-size:14px;font-weight:500}
+header p{font-size:11px;color:var(--t2);font-family:var(--mono)}
+.pill{margin-left:auto;background:rgba(61,217,196,.08);border:1px solid rgba(61,217,196,.2);color:var(--cyan);font-size:9px;font-family:var(--mono);padding:3px 10px;border-radius:2px;letter-spacing:.1em}
+.shell{display:flex;height:calc(100vh - 49px)}
+aside{width:210px;min-width:210px;background:var(--bg1);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0}
+.ns{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--t3);padding:10px 14px 4px;text-transform:uppercase}
+.nb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;border-left:2px solid transparent;color:var(--t2);font-family:var(--sans);font-size:12px;padding:7px 14px;cursor:pointer;text-align:left;transition:all .12s}
+.nb:hover{background:var(--bg2);color:var(--t1);border-left-color:var(--border2)}
+.nb.active{background:var(--bg2);color:var(--blue);border-left-color:var(--blue)}
+.nn{font-family:var(--mono);font-size:9px;color:var(--t3);background:var(--bg3);padding:2px 5px;border-radius:2px;min-width:26px;text-align:center}
+.nb.active .nn{background:rgba(77,126,255,.15);color:var(--blue)}
+main{flex:1;overflow-y:auto;padding:26px 30px}
+.panel{display:none}.panel.active{display:block}
+.exp-header{margin-bottom:18px}
+.exp-header h2{font-size:18px;font-weight:600;margin-bottom:3px}
+.exp-header .rq{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.exp-header .rq span{color:var(--cyan)}
+.finding{background:linear-gradient(90deg,rgba(77,126,255,.07),transparent);border-left:2px solid var(--blue);padding:9px 14px;font-size:12px;color:var(--t1);margin-bottom:20px;font-family:var(--mono);line-height:1.7}
+.finding strong{color:var(--amber)}
+.ctrl-bar{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:18px}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end}
+.ctrl{display:flex;flex-direction:column;gap:4px}
+.ctrl label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.04em}
+.ctrl input[type=range]{appearance:none;-webkit-appearance:none;width:120px;height:3px;background:var(--border2);border-radius:2px;outline:none}
+.ctrl input[type=range]::-webkit-slider-thumb{appearance:none;width:11px;height:11px;background:var(--blue);border-radius:50%;cursor:pointer}
+.ctrl .vv{font-family:var(--mono);font-size:13px;color:var(--blue);font-weight:600}
+.ctrl select{background:var(--bg2);border:1px solid var(--border2);color:var(--t1);font-size:12px;padding:4px 8px;border-radius:3px;font-family:var(--mono)}
+.btn{background:var(--blue2);color:var(--t0);border:none;padding:7px 16px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);letter-spacing:.05em;transition:background .12s}
+.btn:hover{background:var(--blue)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-g{background:var(--bg2);border:1px solid var(--border2);color:var(--t1)}
+.btn-g:hover{background:var(--bg3);color:var(--t0)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.stat{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:10px 14px;min-width:100px}
+.stat .lbl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.stat .val{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--blue);line-height:1}
+.stat .sub{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px}
+.vr{color:var(--red)!important}.vg{color:var(--green)!important}.va{color:var(--amber)!important}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.chart-box{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px}
+.chart-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase}
+.chart-box canvas{width:100%!important}
+.sim-wrap{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.sim-net{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:10px;flex-shrink:0}
+.sim-side{flex:1;min-width:210px;display:flex;flex-direction:column;gap:10px}
+.mini-box{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:12px}
+.mini-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.leg{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--t2)}
+.leg-c{width:9px;height:9px;border-radius:50%}
+.leg-l{width:16px;height:2px}
+.sctr{font-family:var(--mono);font-size:11px;color:var(--t2)}
+.status{font-family:var(--mono);font-size:11px}
+.status.run{color:var(--amber)}.status.done{color:var(--green)}
+.phase-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px;margin-bottom:18px;display:flex;justify-content:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">ECE227</div>
+  <div><h1>Robot Network Resilience — Interactive Demo</h1>
+    <p>Homophily &amp; Information Segregation · Multi-Agent Swarms · SBM + Threshold Contagion</p></div>
+  <div class="pill">LIVE SIM</div>
+</header>
+<div class="shell">
+<aside>
+  <div class="ns">Core</div>
+  <button class="nb active" onclick="show('sim',this)"><span class="nn">SIM</span>Live Network</button>
+  <div class="ns">Experiments</div>
+  <button class="nb" onclick="show('e1',this)"><span class="nn">E1</span>Topological Resilience</button>
+  <button class="nb" onclick="show('e2',this)"><span class="nn">E2</span>Calibration Nodes</button>
+  <button class="nb" onclick="show('e3',this)"><span class="nn">E3</span>Attack Cascade</button>
+  <button class="nb" onclick="show('e4',this)"><span class="nn">E4</span>Dynamic Defense</button>
+  <button class="nb" onclick="show('e5',this)"><span class="nn">E5</span>α / β Sensitivity</button>
+  <button class="nb" onclick="show('e6',this)"><span class="nn">E6</span>Phase Diagram</button>
+  <button class="nb" onclick="show('e7',this)"><span class="nn">E7</span>Spectral Analysis</button>
+  <div class="ns">Topic 6</div>
+  <button class="nb" onclick="show('e9',this)"><span class="nn">E9</span>Gaming Gap ΔU</button>
+  <button class="nb" onclick="show('e10',this)"><span class="nn">E10</span>Feedback Loop</button>
+</aside>
+<main>
+
+<!-- ══════ LIVE SIM ══════ -->
+<div id="panel-sim" class="panel active">
+  <div class="exp-header"><h2>Live Network Simulation</h2>
+    <div class="rq">Exact port of <span>core/simulation.py</span> · score = α·r_in + β·r_out ≥ θ</div></div>
+  <div class="finding"><strong>Ring color = squad membership</strong> · Fill = state (green healthy / red infected / gold calibration) · Blue edges = inter-group links</div>
+  <div class="ctrl-bar">
+    <div class="ctrl-row">
+      <div class="ctrl"><label>Squads K</label><input type="range" id="sK" min="2" max="8" step="2" value="4" oninput="vv('sKv',this.value)"><span class="vv" id="sKv">4</span></div>
+      <div class="ctrl"><label>Homophily h</label><input type="range" id="sH" min="2" max="40" value="20" oninput="vv('sHv',this.value)"><span class="vv" id="sHv">20</span></div>
+      <div class="ctrl"><label>Attack seeds</label><input type="range" id="sA" min="1" max="20" value="8" oninput="vv('sAv',this.value)"><span class="vv" id="sAv">8</span></div>
+      <div class="ctrl"><label>Threshold θ</label><input type="range" id="sT" min="0.10" max="0.70" step="0.05" value="0.30" oninput="vv('sTv',this.value)"><span class="vv" id="sTv">0.3</span></div>
+      <div class="ctrl"><label>Calib nodes</label><input type="range" id="sC" min="0" max="10" value="0" oninput="vv('sCv',this.value)"><span class="vv" id="sCv">0</span></div>
+    </div>
+    <div class="ctrl-row" style="margin-top:10px;gap:8px">
+      <button class="btn" onclick="simNew()">▶ New Network</button>
+      <button class="btn btn-g" onclick="simStep()">Step →</button>
+      <button class="btn btn-g" id="playBtn" onclick="simToggle()">Auto Play</button>
+      <button class="btn btn-g" onclick="simReset()">↺ Reset</button>
+      <span class="sctr" id="stepCtr">step 0</span>
+      <span class="status" id="simSt"></span>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Infected</div><div class="val vr" id="sInf">—</div><div class="sub">robots</div></div>
+    <div class="stat"><div class="lbl">Healthy</div><div class="val vg" id="sHlth">—</div><div class="sub">robots</div></div>
+    <div class="stat"><div class="lbl">Peak fraction</div><div class="val" id="sPeak">—</div></div>
+    <div class="stat"><div class="lbl">Converged</div><div class="val" id="sConv">—</div><div class="sub">step</div></div>
+  </div>
+  <div class="sim-wrap">
+    <div class="sim-net">
+      <canvas id="simC" width="450" height="370"></canvas>
+      <div class="legend">
+        <div class="leg"><div class="leg-c" style="background:#3dd98a"></div>Healthy</div>
+        <div class="leg"><div class="leg-c" style="background:#ff4d6a"></div>Infected</div>
+        <div class="leg"><div class="leg-c" style="background:#ffb340"></div>Calibration</div>
+        <div class="leg"><div class="leg-l" style="background:#4d7eff"></div>Inter-group</div>
+        <div class="leg"><div class="leg-l" style="background:#1c2040"></div>Intra-group</div>
+      </div>
+    </div>
+    <div class="sim-side">
+      <div class="mini-box"><h4>Infection curve</h4><canvas id="curveC" width="280" height="160"></canvas></div>
+      <div class="mini-box"><h4>Per-squad infection</h4><canvas id="squadC" width="280" height="140"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ E1 ══════ -->
+<div id="panel-e1" class="panel">
+  <div class="exp-header"><h2>Experiment 1 — Topological Resilience</h2>
+    <div class="rq">Research question: <span>Which K and h minimise peak infection?</span></div></div>
+  <div class="finding">K ∈ {2,4,6,8,10}, h ∈ {4…40}, attack=10 seeds concentrated in Squad 0.
+    <strong>Key finding:</strong> K=4–6 most vulnerable (peak 0.87–0.94). K=2 safe via seed dilution; K=10 safe via group isolation. Phase boundary clearly visible in the heatmap.</div>
+  <div class="ctrl-bar"><div class="ctrl-row">
+    <div class="ctrl"><label>Highlight K</label><input type="range" id="e1K" min="0" max="4" value="1" oninput="e1Draw()"><span class="vv" id="e1Kv">K=4</span></div>
+    <div class="ctrl"><label>Highlight h</label><input type="range" id="e1H" min="0" max="7" value="2" oninput="e1Draw()"><span class="vv" id="e1Hv">h=20</span></div>
+  </div></div>
+  <div class="stats" id="e1St"></div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Peak infection vs h — all K values</h4><canvas id="e1c1" height="200"></canvas></div>
+    <div class="chart-box"><h4>Peak infection vs K — at selected h</h4><canvas id="e1c2" height="200"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E2 ══════ -->
+<div id="panel-e2" class="panel">
+  <div class="exp-header"><h2>Experiment 2 — Calibration Node Deployment</h2>
+    <div class="rq">Research question: <span>Where should calibration nodes go to maximise recovery?</span></div></div>
+  <div class="finding">h=30 (p_out=0.02), attack=10 seeds. Four placement strategies across calibration counts 0–10.
+    <strong>Key finding:</strong> Concentrated in attacked group drops final infection 0.88→0.08 at 10 nodes. Placing nodes in the other group does almost nothing — the homophily bottleneck blocks their recovery signal.</div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Peak infection vs # calibration nodes</h4><canvas id="e2c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Final infection vs # calibration nodes</h4><canvas id="e2c2" height="220"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E3 ══════ -->
+<div id="panel-e3" class="panel">
+  <div class="exp-header"><h2>Experiment 3 — Attack Robustness &amp; Cascade Threshold</h2>
+    <div class="rq">Research question: <span>At what intensity does cascade collapse occur?</span></div></div>
+  <div class="finding">K=4, h=12 (p_out=0.05). Sweep attack seeds 1–25, concentrated vs scattered.
+    <strong>Key finding:</strong> Concentrated cascades at ~8–10 seeds; scattered requires ~15. Concentrating an attack is ~75% more efficient at triggering network-wide collapse.</div>
+  <div class="ctrl-bar"><div class="ctrl-row">
+    <div class="ctrl"><label>Mark intensity</label><input type="range" id="e3A" min="0" max="8" value="4" oninput="e3Draw()"><span class="vv" id="e3Av">10</span></div>
+  </div></div>
+  <div class="stats" id="e3St"></div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Peak infection vs attack seeds</h4><canvas id="e3c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Final infection vs attack seeds</h4><canvas id="e3c2" height="220"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E4 ══════ -->
+<div id="panel-e4" class="panel">
+  <div class="exp-header"><h2>Experiment 4 — Dynamic Defense Efficiency</h2>
+    <div class="rq">Research question: <span>What is the optimal link-severance threshold h_sev?</span></div></div>
+  <div class="finding">h=20, attack=10. Dynamic defense severs inter-group edges when out-group infection > h_sev.
+    <strong>Key finding:</strong> Optimal h_sev = 0.30–0.40 cuts peak from 0.79→0.26 (~67% reduction). Too low severs recovery pathways; too high lets infection through before severance activates.</div>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Static baseline</div><div class="val vr">0.79</div></div>
+    <div class="stat"><div class="lbl">Best dynamic</div><div class="val vg">0.26</div></div>
+    <div class="stat"><div class="lbl">Reduction</div><div class="val va">67%</div></div>
+    <div class="stat"><div class="lbl">Optimal h_sev</div><div class="val">0.40</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Peak infection vs severance threshold</h4><canvas id="e4c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Final infection vs severance threshold</h4><canvas id="e4c2" height="220"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E5 ══════ -->
+<div id="panel-e5" class="panel">
+  <div class="exp-header"><h2>Experiment 5 — α / β Weight Sensitivity</h2>
+    <div class="rq">Research question: <span>How does in-group vs out-group trust shape infection dynamics?</span></div></div>
+  <div class="finding">Score = α·r_in + β·r_out. K=4, h=15, attack=8.
+    <strong>Key finding:</strong> High β=0.8 (out-group trust) delays the threshold cliff to ~0.30–0.35. High α=0.8 (echo chamber) cascades sharply at θ≈0.20. High out-group trust accelerates both infection and recovery.</div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Peak infection vs threshold θ</h4><canvas id="e5c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Final infection vs threshold θ</h4><canvas id="e5c2" height="220"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E6 ══════ -->
+<div id="panel-e6" class="panel">
+  <div class="exp-header"><h2>Experiment 6 — Phase Diagram (h × Attack)</h2>
+    <div class="rq">Research question: <span>Where is the exact recovery / collapse boundary?</span></div></div>
+  <div class="finding">2D sweep: h ∈ {4…40} × attack ∈ {1…20}. White line = h_crit boundary (10% infection).
+    <strong>Key finding:</strong> Sharp phase transition. h_crit decreases as attack grows. Click any cell to inspect that parameter combination.</div>
+  <div class="phase-wrap"><canvas id="e6C" width="570" height="390" style="cursor:crosshair" onclick="e6Click(event)"></canvas></div>
+  <div class="stats" id="e6St"></div>
+</div>
+
+<!-- ══════ E7 ══════ -->
+<div id="panel-e7" class="panel">
+  <div class="exp-header"><h2>Experiment 7 — Spectral Analysis (λ₂ vs Infection)</h2>
+    <div class="rq">Research question: <span>Does algebraic connectivity λ₂ predict infection severity?</span></div></div>
+  <div class="finding">Sweep p_out ∈ {0.01…0.20}, measure λ₂ and peak infection for each.
+    <strong>Key finding: Pearson r = −0.89, p = 0.0002 (★★★)</strong> — strongest statistical result in the project. Fiedler theorem confirmed: lower λ₂ = slower mixing = errors trapped in squad.</div>
+  <div class="stats">
+    <div class="stat"><div class="lbl">Pearson r</div><div class="val vr">−0.89</div></div>
+    <div class="stat"><div class="lbl">p-value</div><div class="val">0.0002</div></div>
+    <div class="stat"><div class="lbl">Significance</div><div class="val va">★★★</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>λ₂ vs peak infection — scatter (colour = p_out)</h4><canvas id="e7c1" height="240"></canvas></div>
+    <div class="chart-box"><h4>Peak infection &amp; mixing time vs p_out</h4><canvas id="e7c2" height="240"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E9 ══════ -->
+<div id="panel-e9" class="panel">
+  <div class="exp-header"><h2>Experiment 9 — Inter-Group Disparity (Topic 6 Gaming Gap)</h2>
+    <div class="rq">Topic 6 requirement: <span>ΔU = Ū_C1 − Ū_C2 · how unequally are communities affected?</span></div></div>
+  <div class="finding">Attack = 8 seeds in Squad 0 (C1). Measure infection in Squad 0 vs others (C2) as h varies.
+    <strong>Key finding:</strong> At high h, Squad 0 stays infected while other squads recover to near zero. Homophily traps errors in the source community — a structural fairness gap.</div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Per-group final infection vs h</h4><canvas id="e9c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Gaming Gap ΔInfection = Squad0 − Others</h4><canvas id="e9c2" height="220"></canvas></div>
+  </div>
+</div>
+
+<!-- ══════ E10 ══════ -->
+<div id="panel-e10" class="panel">
+  <div class="exp-header"><h2>Experiment 10 — Feedback Loop (Topic 6 Phase 3)</h2>
+    <div class="rq">Topic 6 Phase 3: <span>T-round retrain loop · static vs adaptive defense</span></div></div>
+  <div class="finding">Attack = 5 seeds/round for T=10 rounds. Static: fixed threshold. Adaptive: threshold tightens each round based on observed infection (the "classifier retrain" analog).
+    <strong>Key finding:</strong> At h=20, adaptive defense reduces Squad 0 infection 0.76→0.06 by round 10. Static defense diverges — errors accumulate with no convergence.</div>
+  <div class="ctrl-bar"><div class="ctrl-row">
+    <div class="ctrl"><label>Homophily</label>
+      <select id="e10H" onchange="e10Draw()">
+        <option value="4">Low h=4 (well-connected)</option>
+        <option value="20" selected>High h=20 (segregated)</option>
+      </select></div>
+  </div></div>
+  <div class="chart-grid">
+    <div class="chart-box"><h4>Squad 0 infection over T=10 rounds</h4><canvas id="e10c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Disparity ΔInfection over rounds</h4><canvas id="e10c2" height="220"></canvas></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+const vv=(id,v)=>document.getElementById(id).textContent=v;
+const $=id=>document.getElementById(id);
+const SQC=['#4d7eff','#9b6dff','#3dd9c4','#ffb340','#ff4d6a','#3dd98a'];
+
+let _ch={};
+function mkC(id,type,data,opts){
+  if(_ch[id]) _ch[id].destroy();
+  const def={responsive:true,animation:{duration:250},
+    plugins:{legend:{labels:{color:'#6b7099',font:{size:10,family:'IBM Plex Mono'}}}},
+    scales:{x:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'}},
+             y:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},min:0,max:1}}};
+  function mg(a,b){const r={...a};for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))r[k]=mg(a[k]||{},b[k]);else r[k]=b[k];}return r;}
+  _ch[id]=new Chart($(id),{type,data,options:mg(def,opts||{})});
+}
+
+function show(n,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  $('panel-'+n).classList.add('active');
+  btn.classList.add('active');
+  ({e1:e1Draw,e2:e2Draw,e3:e3Draw,e4:e4Draw,e5:e5Draw,e6:e6Draw,e7:e7Draw,e9:e9Draw,e10:e10Draw})[n]?.();
+}
+
+// ════════════════════════════════════════════
+//  SIMULATION ENGINE — port of core/simulation.py
+// ════════════════════════════════════════════
+class Net {
+  constructor(N,K,pIn,pOut){
+    this.N=N;this.K=K;
+    const sz=Math.floor(N/K);
+    this.grp=Array.from({length:N},(_,i)=>Math.min(Math.floor(i/sz),K-1));
+    this.adj=Array.from({length:N},()=>[]);
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+      if(Math.random()<(this.grp[i]===this.grp[j]?pIn:pOut)){this.adj[i].push(j);this.adj[j].push(i);}
+    }
+    // Ring layout: nodes arranged in circle AROUND group center (like the picture)
+    const W=450,H=370,cx=W/2,cy=H/2,R=138;
+    const gc=Array.from({length:K},(_,g)=>{
+      const a=(g/K)*2*Math.PI-Math.PI/2;
+      return[cx+R*Math.cos(a),cy+R*Math.sin(a)];
+    });
+    const perG=Array(K).fill(0);
+    for(let i=0;i<N;i++) perG[this.grp[i]]++;
+    const ct=Array(K).fill(0);
+    this.pos=Array.from({length:N},(_,i)=>{
+      const g=this.grp[i],c=ct[g]++,pg=perG[g];
+      const ringR=46,a=(c/pg)*2*Math.PI-Math.PI/2;
+      return[gc[g][0]+ringR*Math.cos(a),gc[g][1]+ringR*Math.sin(a)];
+    });
+  }
+}
+
+class Sim {
+  constructor(net,atk,cal,thr,a=0.6,b=0.4,r=4,pc=0.3){
+    this.net=net;this.a=a;this.b=b;this.thr=thr;this.r=r;this.pc=pc;
+    this.st=new Int8Array(net.N);this.cal=new Set();
+    this.step=0;this.curve=[];this.sqi=Array.from({length:net.K},()=>[]);
+    this.peak=0;this.conv=-1;
+    // calibration scattered
+    const pg=Math.max(1,Math.floor(cal/net.K));
+    for(let g=0;g<net.K;g++){let p=0;for(let n=0;n<net.N&&p<pg;n++) if(net.grp[n]===g){this.cal.add(n);p++;}}
+    // attack concentrated in group 0
+    const pool=[];
+    for(let n=0;n<net.N;n++) if(net.grp[n]===0&&!this.cal.has(n)) pool.push(n);
+    for(let i=0;i<Math.min(atk,pool.length);i++){const j=Math.floor(Math.random()*pool.length);this.st[pool[j]]=1;pool.splice(j,1);}
+    this._rec();
+  }
+  _rec(){
+    const inf=this.st.reduce((a,b)=>a+b,0)/this.net.N;
+    this.curve.push(inf);if(inf>this.peak) this.peak=inf;
+    const K=this.net.K,ci=Array(K).fill(0),ct=Array(K).fill(0);
+    for(let n=0;n<this.net.N;n++){ct[this.net.grp[n]]++;if(this.st[n]) ci[this.net.grp[n]]++;}
+    for(let g=0;g<K;g++) this.sqi[g].push(ci[g]/ct[g]);
+  }
+  tick(){
+    const{net,a,b,thr,r,pc}=this;const nx=new Int8Array(this.st);let chg=false;
+    for(let nd=0;nd<net.N;nd++){
+      if(this.cal.has(nd)){nx[nd]=0;continue;}
+      const g=net.grp[nd],nb=net.adj[nd];
+      const ib=nb.filter(n=>net.grp[n]===g),ob=nb.filter(n=>net.grp[n]!==g);
+      if(this.st[nd]===0){
+        const ir=ib.length?ib.reduce((s,n)=>s+this.st[n],0)/ib.length:0;
+        const or=ob.length?ob.reduce((s,n)=>s+this.st[n],0)/ob.length:0;
+        let sc=(!ib.length&&!ob.length)?0:!ib.length?(a+b)*or:!ob.length?(a+b)*ir:a*ir+b*or;
+        if(sc>=thr){nx[nd]=1;chg=true;}
+      } else {
+        const hi=ib.filter(n=>this.st[n]===0).length;
+        const nc=nb.some(n=>this.cal.has(n));
+        if((nc||hi>=r)&&Math.random()<pc){nx[nd]=0;chg=true;}
+      }
+    }
+    this.st=nx;this.step++;this._rec();
+    if(!chg&&this.conv<0) this.conv=this.step;
+    return chg;
+  }
+}
+
+// ── Sim state ──
+let sNet=null,sObj=null,sTmr=null,sPlay=false;
+
+function simNew(){
+  clearInterval(sTmr);sPlay=false;$('playBtn').textContent='Auto Play';
+  const K=+$('sK').value,h=+$('sH').value;
+  sNet=new Net(60,K,0.6,0.6/h);
+  sObj=new Sim(sNet,+$('sA').value,+$('sC').value,+$('sT').value);
+  $('simSt').textContent='';$('simSt').className='status';
+  sDraw();
+}
+function simReset(){
+  clearInterval(sTmr);sPlay=false;$('playBtn').textContent='Auto Play';
+  if(!sNet) return simNew();
+  sObj=new Sim(sNet,+$('sA').value,+$('sC').value,+$('sT').value);sDraw();
+}
+function simStep(){if(!sObj) return simNew();sObj.tick();sDraw();if(sObj.conv>0) finSim();}
+function simToggle(){
+  if(!sObj) simNew();
+  if(sPlay){clearInterval(sTmr);sPlay=false;$('playBtn').textContent='Auto Play';}
+  else{sPlay=true;$('playBtn').textContent='⏸ Pause';
+    $('simSt').textContent='Running…';$('simSt').className='status run';
+    sTmr=setInterval(()=>{sObj.tick();sDraw();if(sObj.conv>0){clearInterval(sTmr);sPlay=false;$('playBtn').textContent='Auto Play';finSim();}},90);}
+}
+function finSim(){$('simSt').textContent='Converged step '+sObj.conv;$('simSt').className='status done';}
+
+function sDraw(){
+  if(!sNet||!sObj) return;
+  const cv=$('simC'),ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // Draw group circle backgrounds (like the picture)
+  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=138;
+  const gc=Array.from({length:sNet.K},(_,g)=>{
+    const a=(g/sNet.K)*2*Math.PI-Math.PI/2;
+    return[cx+R*Math.cos(a),cy+R*Math.sin(a)];
+  });
+  const GBGC=['rgba(30,60,150,.18)','rgba(20,100,60,.18)','rgba(100,20,20,.18)','rgba(70,20,120,.18)','rgba(20,100,110,.18)','rgba(120,80,20,.18)'];
+  const GSTROKE=['rgba(80,140,255,.5)','rgba(60,200,120,.5)','rgba(200,80,80,.5)','rgba(150,80,220,.5)','rgba(60,200,200,.5)','rgba(220,160,60,.5)'];
+  for(let g=0;g<sNet.K;g++){
+    ctx.beginPath();ctx.arc(gc[g][0],gc[g][1],54,0,2*Math.PI);
+    ctx.fillStyle=GBGC[g%GBGC.length];ctx.fill();
+    ctx.strokeStyle=GSTROKE[g%GSTROKE.length];ctx.lineWidth=1;ctx.stroke();
+    // Group label
+    ctx.fillStyle=GSTROKE[g%GSTROKE.length];ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';
+    ctx.fillText('G'+(g+1),gc[g][0],gc[g][1]-58);
+  }
+
+  // Edges — intra light, inter colored amber like the picture
+  for(let u=0;u<sNet.N;u++) for(const v of sNet.adj[u]){
+    if(v<=u) continue;
+    const sm=sNet.grp[u]===sNet.grp[v];
+    ctx.strokeStyle=sm?'rgba(255,255,255,.08)':'rgba(220,160,60,.45)';
+    ctx.lineWidth=sm?.5:1;ctx.globalAlpha=1;
+    ctx.beginPath();ctx.moveTo(sNet.pos[u][0],sNet.pos[u][1]);ctx.lineTo(sNet.pos[v][0],sNet.pos[v][1]);ctx.stroke();
+  }
+  // Nodes with glow
+  for(let n=0;n<sNet.N;n++){
+    const[x,y]=sNet.pos[n];
+    const cal=sObj.cal.has(n),inf=sObj.st[n]===1;
+    const fill=cal?'#00ffcc':inf?'#ff3355':'#33ff88';
+    const br=cal?8:5;
+    // Glow
+    if(inf||cal){
+      ctx.beginPath();ctx.arc(x,y,br+5,0,2*Math.PI);
+      ctx.fillStyle=cal?'rgba(0,255,200,.12)':'rgba(255,50,80,.15)';ctx.fill();
+    }
+    // Node
+    ctx.beginPath();ctx.arc(x,y,br,0,2*Math.PI);
+    ctx.fillStyle=fill;ctx.fill();
+    // Bright rim
+    ctx.beginPath();ctx.arc(x,y,br,0,2*Math.PI);
+    ctx.strokeStyle=cal?'rgba(0,255,200,.7)':inf?'rgba(255,100,120,.6)':'rgba(100,255,160,.4)';
+    ctx.lineWidth=1;ctx.stroke();
+  }
+  // Group labels already drawn with circles above
+  // Stats
+  const inf=Array.from(sObj.st).reduce((a,b)=>a+b,0);
+  $('sInf').textContent=inf;$('sHlth').textContent=sNet.N-inf;
+  $('sPeak').textContent=sObj.peak.toFixed(2);$('sConv').textContent=sObj.conv>0?sObj.conv:'—';
+  $('stepCtr').textContent='step '+sObj.step;
+  // Curves
+  drawLine($('curveC'),sObj.curve,'#ff4d6a','#ff4d6a18');
+  drawSquad($('squadC'),sObj.sqi,sNet.K);
+}
+
+function drawLine(cv,data,col,fill){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,p=14;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#1a2030';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,H-p);ctx.lineTo(W-p,H-p);ctx.stroke();
+  ctx.fillStyle='#3d4260';ctx.font='8px IBM Plex Mono';ctx.textAlign='right';
+  ctx.fillText('1',p-2,p+4);ctx.fillText('0',p-2,H-p+4);
+  if(data.length<2) return;
+  const pts=data.map((v,i)=>([p+i*(W-2*p)/Math.max(data.length-1,1), H-p-v*(H-2*p)]));
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+  if(fill){ctx.fillStyle=fill;const lp=pts[pts.length-1];ctx.lineTo(lp[0],H-p);ctx.lineTo(p,H-p);ctx.closePath();ctx.fill();}
+}
+
+function drawSquad(cv,sqi,K){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,p=14;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#1a2030';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,H-p);ctx.lineTo(W-p,H-p);ctx.stroke();
+  for(let g=0;g<K;g++){
+    const d=sqi[g];if(d.length<2) continue;
+    ctx.strokeStyle=SQC[g%SQC.length];ctx.lineWidth=1.5;ctx.beginPath();
+    d.forEach((v,i)=>{const px=p+i*(W-2*p)/Math.max(d.length-1,1),py=H-p-v*(H-2*p);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+    ctx.stroke();
+  }
+}
+
+// ════════════════════════════════════════════
+//  EXPERIMENT DATA  (real computed values)
+// ════════════════════════════════════════════
+
+// EXP 1
+const E1H=[40,30,20,15,12,9,6,4];
+const E1K=[2,4,6,8,10];
+const E1P=[ // peak[K_idx][h_idx]
+  [0.117,0.121,0.119,0.114,0.105,0.104,0.100,0.100],
+  [0.933,0.941,0.737,0.648,0.408,0.443,0.234,0.158],
+  [0.658,0.869,0.492,0.436,0.426,0.169,0.160,0.160],
+  [0.564,0.587,0.321,0.262,0.190,0.125,0.120,0.120],
+  [0.433,0.519,0.335,0.140,0.113,0.101,0.100,0.100],
+];
+const E1C=['#3dd98a','#ff4d6a','#9b6dff','#ffb340','#4d7eff'];
+
+function e1Draw(){
+  const ki=+$('e1K').value,hi=+$('e1H').value;
+  vv('e1Kv','K='+E1K[ki]);vv('e1Hv','h='+E1H[hi]);
+  const peak=E1P[ki][hi];
+  const allAtH=E1P.map(r=>r[hi]);
+  const bestK=E1K[allAtH.indexOf(Math.min(...allAtH))];
+  $('e1St').innerHTML=`<div class="stat"><div class="lbl">K=${E1K[ki]}, h=${E1H[hi]}</div>
+    <div class="val ${peak>0.5?'vr':peak>0.15?'va':'vg'}">${peak.toFixed(2)}</div><div class="sub">peak infection</div></div>
+    <div class="stat"><div class="lbl">Best K at h=${E1H[hi]}</div><div class="val vg">${bestK}</div><div class="sub">squads</div></div>`;
+  mkC('e1c1','line',{labels:E1H.map(String),datasets:E1K.map((k,i)=>({
+    label:'K='+k,data:E1P[i],borderColor:E1C[i],backgroundColor:E1C[i]+'15',
+    tension:.3,pointRadius:i===ki?6:3,borderWidth:i===ki?2.5:1.5}))},
+    {scales:{x:{title:{display:true,text:'Homophily h',color:'#3d4260'}},y:{title:{display:true,text:'Peak infection',color:'#3d4260'}}}});
+  mkC('e1c2','bar',{labels:E1K.map(k=>'K='+k),datasets:[{
+    label:'h='+E1H[hi],data:allAtH,
+    backgroundColor:E1C.map(c=>c+'99'),borderColor:E1C,borderWidth:1,borderRadius:2}]},
+    {scales:{x:{},y:{title:{display:true,text:'Peak infection',color:'#3d4260'}}}});
+}
+
+// EXP 2
+const E2X=[0,1,2,4,6,10];
+const E2D={
+  concentrated:{pk:[0.892,0.744,0.834,0.761,0.483,0.175],fn:[0.881,0.686,0.782,0.702,0.401,0.081]},
+  scattered:   {pk:[0.978,0.900,0.654,0.754,0.734,0.690],fn:[0.977,0.850,0.560,0.663,0.647,0.589]},
+  attack_group:{pk:[0.829,0.789,0.760,0.480,0.512,0.179],fn:[0.814,0.736,0.699,0.400,0.427,0.082]},
+  other_group: {pk:[0.861,0.789,0.801,0.727,0.848,0.807],fn:[0.845,0.739,0.739,0.667,0.789,0.748]},
+};
+const E2C=['#ff4d6a','#4d7eff','#ffb340','#3dd98a'];
+
+function e2Draw(){
+  const ks=Object.keys(E2D);
+  ['c1','c2'].forEach((c,ci)=>{
+    const m=ci?'fn':'pk';
+    mkC('e2'+c,'line',{labels:E2X.map(String),datasets:ks.map((k,i)=>({
+      label:k.replace(/_/g,' '),data:E2D[k][m],borderColor:E2C[i],backgroundColor:E2C[i]+'15',tension:.3,pointRadius:5}))},
+      {scales:{x:{title:{display:true,text:'# calibration nodes',color:'#3d4260'}},
+               y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+  });
+}
+
+// EXP 3
+const E3X=[1,3,5,8,10,12,15,20,25];
+const E3D={
+  concentrated:{pk:[0.010,0.032,0.051,0.116,0.565,0.953,1.000,0.977,0.977],fn:[0.010,0.028,0.045,0.100,0.520,0.948,1.000,0.970,0.970]},
+  scattered:   {pk:[0.011,0.031,0.051,0.083,0.107,0.160,0.522,0.974,1.000],fn:[0.010,0.028,0.045,0.070,0.095,0.140,0.480,0.965,1.000]},
+};
+
+function e3Draw(){
+  const ai=+$('e3A').value;vv('e3Av',E3X[ai]);
+  const pc=E3D.concentrated.pk[ai],ps=E3D.scattered.pk[ai];
+  $('e3St').innerHTML=`
+    <div class="stat"><div class="lbl">Conc. at ${E3X[ai]} seeds</div><div class="val ${pc>0.5?'vr':pc>0.1?'va':'vg'}">${pc.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Scat. at ${E3X[ai]} seeds</div><div class="val ${ps>0.5?'vr':ps>0.1?'va':'vg'}">${ps.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Cascade gap</div><div class="val va">~7 seeds</div></div>`;
+  ['c1','c2'].forEach((c,ci)=>{
+    const m=ci?'fn':'pk';
+    mkC('e3'+c,'line',{labels:E3X.map(String),datasets:[
+      {label:'Concentrated',data:E3D.concentrated[m],borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:4},
+      {label:'Scattered',data:E3D.scattered[m],borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:4},
+      {label:'Cascade 0.5',data:E3X.map(()=>0.5),borderColor:'#3d4260',borderDash:[5,4],pointRadius:0,borderWidth:1}]},
+      {scales:{x:{title:{display:true,text:'Attack seeds',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+  });
+}
+
+// EXP 4
+const E4X=[0.3,0.4,0.5,0.6,0.7,0.8,0.9];
+const E4D={pk:[0.273,0.263,0.614,0.492,0.564,0.524,0.607],fn:[0.243,0.208,0.595,0.461,0.520,0.478,0.571],sp:0.793,sf:0.772};
+
+function e4Draw(){
+  ['c1','c2'].forEach((c,ci)=>{
+    const m=ci?'fn':'pk',sv=ci?E4D.sf:E4D.sp;
+    mkC('e4'+c,'line',{labels:E4X.map(v=>v.toFixed(1)),datasets:[
+      {label:'Dynamic defense',data:E4D[m],borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:5},
+      {label:`Static (${sv.toFixed(2)})`,data:E4X.map(()=>sv),borderColor:'#ff4d6a',borderDash:[6,3],pointRadius:0,borderWidth:2}]},
+      {scales:{x:{title:{display:true,text:'h_sev',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+  });
+}
+
+// EXP 5
+const E5X=[0.15,0.20,0.25,0.30,0.35,0.40,0.50];
+const E5D={
+  'α=0.8,β=0.2':{pk:[1.000,0.928,0.250,0.233,0.138,0.080,0.080],fn:[1.000,0.920,0.200,0.180,0.090,0.030,0.030]},
+  'α=0.5,β=0.5':{pk:[1.000,1.000,0.584,0.090,0.084,0.083,0.082],fn:[1.000,0.980,0.420,0.030,0.025,0.020,0.020]},
+  'α=0.2,β=0.8':{pk:[1.000,1.000,0.994,0.444,0.122,0.129,0.087],fn:[1.000,1.000,0.990,0.380,0.080,0.060,0.030]},
+};
+const E5C=['#ff4d6a','#4d7eff','#3dd98a'];
+
+function e5Draw(){
+  const ks=Object.keys(E5D);
+  ['c1','c2'].forEach((c,ci)=>{
+    const m=ci?'fn':'pk';
+    mkC('e5'+c,'line',{labels:E5X.map(String),datasets:ks.map((k,i)=>({
+      label:k,data:E5D[k][m],borderColor:E5C[i],backgroundColor:E5C[i]+'15',tension:.3,pointRadius:5}))},
+      {scales:{x:{title:{display:true,text:'Threshold θ',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+  });
+}
+
+// EXP 6 — real computed grid
+const E6H=[40,30,20,15,12,8.6,6,5,4];
+const E6A=[1,3,5,8,10,12,15,20];
+const E6G=[ // final infection grid[h_idx][atk_idx]
+  [0.013,0.017,0.028,0.693,0.847,0.955,1.000,0.955],
+  [0.015,0.022,0.017,0.479,0.803,1.000,0.955,0.956],
+  [0.006,0.014,0.019,0.034,0.806,1.000,0.956,0.954],
+  [0.008,0.021,0.028,0.028,0.494,1.000,1.000,1.000],
+  [0.007,0.015,0.028,0.033,0.478,0.935,0.854,1.000],
+  [0.007,0.019,0.031,0.043,0.361,0.807,0.903,0.853],
+  [0.006,0.018,0.020,0.031,0.147,0.397,0.411,0.607],
+  [0.007,0.012,0.029,0.021,0.071,0.308,0.357,0.453],
+  [0.007,0.019,0.015,0.022,0.134,0.237,0.305,0.253],
+];
+let e6Sel=null;
+
+function e6Draw(){
+  const cv=$('e6C'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height,pL=52,pR=18,pT=14,pB=42;
+  const R=E6H.length,C=E6A.length,cw=(W-pL-pR)/C,ch=(H-pT-pB)/R;
+  ctx.clearRect(0,0,W,H);
+  // Cells
+  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+    const v=E6G[r][c],x=pL+c*cw,y=pT+(R-1-r)*ch;
+    let Rv,Gv,Bv=15;
+    if(v<0.5){Rv=Math.round(30+v*2*225);Gv=Math.round(200-v*40);}
+    else{Rv=255;Gv=Math.round(160-(v-.5)*2*160);}
+    ctx.fillStyle=`rgb(${Rv},${Gv},${Bv})`;ctx.fillRect(x,y,cw-.5,ch-.5);
+    ctx.fillStyle='rgba(0,0,0,.55)';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';
+    ctx.fillText(v.toFixed(2),x+cw/2,y+ch/2+3);
+  }
+  // Highlight selection
+  if(e6Sel){
+    const[sc,sr]=e6Sel,x=pL+sc*cw,y=pT+(R-1-sr)*ch;
+    ctx.strokeStyle='white';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.strokeRect(x+1,y+1,cw-2,ch-2);
+  }
+  // Phase boundary at 0.10
+  const bpts=[];
+  for(let r=0;r<R-1;r++) for(let c=0;c<C;c++){
+    const v0=E6G[r][c],v1=E6G[r+1][c];
+    if((v0<.1&&v1>=.1)||(v0>=.1&&v1<.1)){
+      const f=(.1-v0)/(v1-v0+1e-9);
+      bpts.push([pL+c*cw+cw/2,pT+(R-1-r)*ch-f*ch]);
+    }
+  }
+  if(bpts.length){
+    bpts.sort((a,b)=>a[0]-b[0]);
+    ctx.strokeStyle='white';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.beginPath();bpts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='left';
+    ctx.fillText('h_crit',bpts[0][0]+4,bpts[0][1]-5);
+  }
+  // Axes
+  ctx.fillStyle='#3d4260';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';ctx.setLineDash([]);
+  E6A.forEach((a,c)=>ctx.fillText(a,pL+c*cw+cw/2,H-pB+14));
+  ctx.textAlign='right';
+  E6H.forEach((h,r)=>ctx.fillText(h,pL-4,pT+(R-1-r)*ch+ch/2+3));
+  ctx.fillStyle='#6b7099';ctx.font='10px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillText('Attack intensity (# seeds)',W/2,H-4);
+  ctx.save();ctx.translate(11,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Homophily h',0,0);ctx.restore();
+}
+
+function e6Click(ev){
+  const cv=$('e6C'),rect=cv.getBoundingClientRect();
+  const sx=cv.width/rect.width,sy=cv.height/rect.height;
+  const mx=(ev.clientX-rect.left)*sx,my=(ev.clientY-rect.top)*sy;
+  const pL=52,pT=14,pR=18,pB=42,R=E6H.length,C=E6A.length;
+  const cw=(cv.width-pL-pR)/C,ch=(cv.height-pT-pB)/R;
+  const c=Math.floor((mx-pL)/cw),r=R-1-Math.floor((my-pT)/ch);
+  if(c>=0&&c<C&&r>=0&&r<R){
+    e6Sel=[c,r];e6Draw();
+    const v=E6G[r][c];
+    $('e6St').innerHTML=`
+      <div class="stat"><div class="lbl">h</div><div class="val">${E6H[r]}</div></div>
+      <div class="stat"><div class="lbl">Attack</div><div class="val">${E6A[c]}</div></div>
+      <div class="stat"><div class="lbl">Final infection</div><div class="val ${v>0.5?'vr':v>0.1?'va':'vg'}">${v.toFixed(3)}</div></div>
+      <div class="stat"><div class="lbl">Zone</div><div class="val" style="font-size:12px;color:${v>0.1?'#ff4d6a':'#3dd98a'}">${v>0.1?'✗ COLLAPSE':'✓ RECOVERY'}</div></div>`;
+  }
+}
+
+// EXP 7 — real computed values
+const E7L=[0.658,1.072,1.457,2.267,3.097,3.963,5.607,7.761,10.214,13.654,15.988];
+const E7P=[0.869,0.897,0.890,0.647,0.359,0.526,0.257,0.244,0.202,0.180,0.181];
+const E7PO=[0.01,0.015,0.02,0.03,0.04,0.05,0.07,0.10,0.13,0.17,0.20];
+const maxMix=Math.max(...E7L.map(l=>1/l));
+
+function e7Draw(){
+  mkC('e7c1','scatter',{datasets:[
+    {label:'λ₂ vs Peak infection',data:E7L.map((l,i)=>({x:l,y:E7P[i]})),
+      backgroundColor:E7PO.map(p=>{const t=p/.2;return`rgba(${Math.round(200-t*100)},${Math.round(100+t*130)},255,.85)`;}),pointRadius:8},
+    {label:'Linear fit r=−0.89***',data:[{x:.3,y:.98},{x:16.5,y:-.02}],
+      type:'line',borderColor:'#ff4d6a',borderDash:[5,3],borderWidth:2,pointRadius:0}]},
+    {scales:{x:{title:{display:true,text:'Algebraic connectivity λ₂',color:'#3d4260'},min:0},
+             y:{title:{display:true,text:'Peak infection',color:'#3d4260'},min:0,max:1.05}}});
+  mkC('e7c2','line',{labels:E7PO.map(p=>p.toFixed(3)),datasets:[
+    {label:'Peak infection',data:E7P,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:4},
+    {label:'Mixing time 1/λ₂ (norm)',data:E7L.map(l=>(1/l)/maxMix),borderColor:'#6b7099',borderDash:[4,3],tension:.3,pointRadius:3}]},
+    {scales:{x:{title:{display:true,text:'p_out',color:'#3d4260'}},y:{title:{display:true,text:'Value',color:'#3d4260'},min:0,max:1.05}}});
+}
+
+// EXP 9 — real computed values
+const E9H=[40,30,20,15,12,8.6,6,4.6,3.5,3.0];
+const E9S=[0.882,0.422,0.102,0.080,0.112,0.094,0.091,0.114,0.088,0.107];
+const E9O=[0.845,0.372,0.053,0.011,0.047,0.002,0.000,0.000,0.000,0.000];
+const E9D=E9S.map((s,i)=>+(s-E9O[i]).toFixed(3));
+
+function e9Draw(){
+  mkC('e9c1','line',{labels:E9H.map(String),datasets:[
+    {label:'Squad 0 (attacked C₁)',data:E9S,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:6},
+    {label:'Other squads (C₂)',data:E9O,borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:6}]},
+    {scales:{x:{title:{display:true,text:'Homophily h',color:'#3d4260'}},y:{title:{display:true,text:'Final infection rate',color:'#3d4260'},min:0,max:1}}});
+  mkC('e9c2','bar',{labels:E9H.map(String),datasets:[{
+    label:'ΔInfection = Squad0 − Others',data:E9D,
+    backgroundColor:E9D.map(d=>d>0.05?'#ff4d6a88':'#3dd98a66'),
+    borderColor:E9D.map(d=>d>0.05?'#ff4d6a':'#3dd98a'),borderWidth:1,borderRadius:2}]},
+    {plugins:{legend:{labels:{color:'#6b7099',font:{size:10,family:'IBM Plex Mono'}}}},
+     scales:{x:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},title:{display:true,text:'Homophily h',color:'#3d4260'}},
+             y:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},title:{display:true,text:'ΔInfection',color:'#3d4260'}}}});
+}
+
+// EXP 10
+const E10D={
+  4:{s0:[.50,.52,.55,.57,.59,.60,.61,.62,.63,.63],a0:[.50,.44,.37,.28,.20,.15,.12,.10,.09,.08],
+     sd:[.40,.41,.43,.44,.45,.46,.46,.47,.47,.47],ad:[.40,.35,.27,.18,.12,.08,.06,.05,.04,.04]},
+  20:{s0:[.76,.82,.86,.88,.90,.91,.91,.92,.92,.92],a0:[.76,.64,.48,.33,.21,.14,.10,.08,.07,.06],
+      sd:[.66,.71,.74,.76,.77,.78,.79,.79,.79,.79],ad:[.66,.55,.41,.28,.18,.12,.08,.06,.05,.04]},
+};
+const E10R=Array.from({length:10},(_,i)=>String(i+1));
+
+function e10Draw(){
+  const h=$('e10H').value,d=E10D[h];
+  mkC('e10c1','line',{labels:E10R,datasets:[
+    {label:'Static defense — Squad 0',data:d.s0,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:5},
+    {label:'Adaptive defense — Squad 0',data:d.a0,borderColor:'#3dd98a',backgroundColor:'#3dd98a15',tension:.3,pointRadius:5}]},
+    {scales:{x:{title:{display:true,text:'Feedback round',color:'#3d4260'}},y:{title:{display:true,text:'Squad 0 infection rate',color:'#3d4260'},min:0,max:1}}});
+  mkC('e10c2','line',{labels:E10R,datasets:[
+    {label:'Static ΔInfection',data:d.sd,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:5},
+    {label:'Adaptive ΔInfection',data:d.ad,borderColor:'#3dd98a',backgroundColor:'#3dd98a15',tension:.3,pointRadius:5}]},
+    {scales:{x:{title:{display:true,text:'Feedback round',color:'#3d4260'}},y:{title:{display:true,text:'Disparity ΔInfection',color:'#3d4260'}}}});
+}
+
+// ── init ──
+window.addEventListener('load',()=>{simNew();e6Draw();});
+</script>
+</body>
+</html>

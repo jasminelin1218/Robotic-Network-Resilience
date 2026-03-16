@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Streamlit Demo",
+      "runtimeExecutable": "/Users/sunny/opt/anaconda3/envs/course/bin/streamlit",
+      "runtimeArgs": ["run", "app.py"],
+      "port": 8501
+    }
+  ]
+}
