@@ -1,10 +1,33 @@
 """
 experiments/exp7_spectral.py
 ==============================
-Experiment 7 — Spectral Analysis
+Experiment 7 — Spectral Analysis (λ₂ as Vulnerability Predictor)
+
+Narrative position  —  Act 1, step 2
+--------------------------------------
+Motivation (from Exp 8b):
+  Exp 8b confirmed SBM captures qualitatively different dynamics than
+  unstructured graphs — community structure IS the mechanism.
+  But WHAT structural quantity determines vulnerability?
+
+Hypothesis:
+  Algebraic connectivity λ₂ (second-smallest Laplacian eigenvalue)
+  measures global network cohesion.  We predict a NEGATIVE correlation:
+  lower λ₂ → slower mixing → faster local collapse → higher peak/final
+  infection.  If confirmed, λ₂ is the single-number "vulnerability dial"
+  and designers can tune p_out (hence λ₂) as a control knob.
+
+What we measure:
+  Sweep p_out (homophily h = p_in/p_out).  At each h compute λ₂ and
+  run Monte Carlo infection simulations.  Report Pearson r between λ₂
+  and both peak and final infection.
+
+Handoff → Exp 1:
+  λ₂ predicts spread; now map the full K × h space to find the
+  safe operating zone — which is exactly what Exp 1 does.
 
 Uses same parameter regime (alpha=0.6, beta=0.4, threshold=0.3, p_c=0.3)
-so lambda2 results are comparable to other experiments.
+so lambda2 results are directly comparable to all other experiments.
 """
 from __future__ import annotations
 from typing import List

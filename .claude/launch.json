@@ -6,6 +6,13 @@
       "runtimeExecutable": "/Users/sunny/opt/anaconda3/envs/course/bin/streamlit",
       "runtimeArgs": ["run", "app.py"],
       "port": 8501
+    },
+    {
+      "name": "Static Demo",
+      "runtimeExecutable": "/Users/sunny/opt/anaconda3/envs/course/bin/python",
+      "runtimeArgs": ["-m", "http.server", "8090"],
+      "port": 8090,
+      "autoPort": false
     }
   ]
 }

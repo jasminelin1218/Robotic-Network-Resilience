@@ -1,11 +1,38 @@
 """
 experiments/exp5_alpha_beta.py
 ================================
-Experiment 5 — In/Out-group Weight Sensitivity
+Experiment 5 — In/Out-group Trust Weight Sensitivity (α, β)
+
+Narrative position  —  Act 2, step 3
+--------------------------------------
+Motivation (from Exp 3):
+  Exp 3 found the cascade threshold for the default trust model
+  (α=0.6, β=0.4).  The cascade threshold is not a property of
+  the network alone — it depends on HOW robots weight signals from
+  in-group vs out-group peers.  A designer who can tune α and β
+  is effectively choosing how "echo-chamber-like" the fleet is.
+
+Hypothesis:
+  High α (in-group dominance) should RAISE the cascade threshold for
+  infection (errors need many infected in-group neighbors) but also
+  slow recovery when calibration nodes are out-group.
+  High β (out-group dominance) should LOWER the cascade threshold
+  but also speed recovery via cross-squad healthy signals.
+
+What we measure:
+  Three (α, β) regimes at varying thresholds:
+    (0.8, 0.2) — insular robots, in-group dominates
+    (0.5, 0.5) — balanced (baseline)
+    (0.2, 0.8) — globally-connected robots, out-group dominates
+  Metric: peak and final infection vs infection threshold parameter.
+
+Handoff → Exp 4:
+  Trust weights alone cannot stop a cascade once it passes the
+  threshold.  Exp 4 asks whether actively severing cross-squad edges
+  at runtime can contain spread after it has started.
 
 High alpha (0.8,0.2): errors stay local — need high in-group infection to spread
 High beta  (0.2,0.8): out-group signals dominate — errors and corrections spread faster
-
 Clear dynamics visible at thresholds 0.15–0.4.
 """
 from __future__ import annotations

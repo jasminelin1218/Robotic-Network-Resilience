@@ -141,9 +141,9 @@ def plot(data: dict, save: bool = True) -> None:
         ax.legend(fontsize=8)
         ax.grid(True, alpha=0.3)
 
-    plt.suptitle('Centrality Analysis — Which nodes bridge communities?\n'
+    plt.suptitle('Pre-Exp B: Centrality Analysis — Which nodes bridge communities?\n'
                  'Bridge score = betweenness × cross-group fraction\n'
-                 '(Best calibration candidates = highest bridge score)',
+                 'Finding used in Exp 2: bridge-score placement is tested as a calibration strategy',
                  fontsize=13, fontweight='bold')
     plt.tight_layout()
     if save:

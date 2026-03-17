@@ -36,9 +36,13 @@ K = 4
 
 
 def run(runs: int = 100, verbose: bool = True) -> dict:
+    # SBM parameters chosen so expected degree matches avg_deg ≈ 6.
+    # For N=100, K=4 (group size 25): E[deg] = 24·p_in + 75·p_out = 6
+    #   h=4:  p_out = 6/(24·4+75) = 6/171 ≈ 0.035,  p_in = 4·p_out ≈ 0.140
+    #   h=20: p_out = 6/(24·20+75) = 6/555 ≈ 0.0108, p_in = 20·p_out ≈ 0.216
     configs = {
-        'SBM h=4':   (0.6, 0.15, 'sbm'),
-        'SBM h=20':  (0.6, 0.03, 'sbm'),
+        'SBM h=4':   (0.140, 0.035,  'sbm'),
+        'SBM h=20':  (0.216, 0.0108, 'sbm'),
         'Erdos-Renyi': (None, None, 'er'),
         'Barabasi-Albert': (None, None, 'ba'),
         'Watts-Strogatz': (None, None, 'ws'),

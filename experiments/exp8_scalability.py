@@ -1,21 +1,40 @@
 """
 experiments/exp8_scalability.py
 =================================
-Experiment 8 — Scalability + Graph Model Comparison  (NEW)
+Experiment 8 — Scalability + Graph Model Comparison
 
-Two sub-experiments:
+Narrative position
+------------------
+This experiment plays TWO roles in the story:
 
-8a. Varying N (network size): Does the cascade threshold and recovery
-    behaviour hold as the swarm scales from 50 to 500 robots?
-    Attack count scales proportionally (10% of N).
+  Act 1 (8b — graph comparison, run FIRST):
+    Before studying homophily effects we must validate that SBM is the
+    right model for robot communication networks.  If SBM, ER, BA and WS
+    all behave identically, homophily is irrelevant.  If they differ,
+    the community structure captured by SBM is the critical ingredient.
 
-8b. Graph model comparison: Run the same attack/recovery on SBM vs
-    Erdos-Renyi, Barabasi-Albert, and Watts-Strogatz graphs with
-    matched edge density. Directly addresses course Topic 6 requirement.
+    Hypothesis: SBM will show qualitatively different (lower) peak
+    infection than unstructured graphs, confirming that group structure
+    is the mechanism — not just edge density.
 
-Both directly answer examiner questions:
-  "Do your results generalise beyond your specific parameter choice?"
-  "How does SBM compare to standard graph models?"
+    Handoff → Exp 7: now that we trust SBM, we ask WHICH structural
+    property (λ₂) drives vulnerability.
+
+  Act 3 (8a — scalability, run AFTER defenses are established):
+    Act 2 found the optimal defenses for N=100.  Before claiming
+    generality, we must verify the cascade threshold and h_crit shift
+    predictably as N grows from 50 to 400.
+
+    Hypothesis: peak infection fraction should be scale-invariant (±15%)
+    because the cascade threshold grows proportionally with N.
+
+    Handoff → Exp 9: scale confirmed; now ask whether the cost of
+    homophily is borne equally across squads.
+
+Sub-experiments
+---------------
+8a. Varying N  : Fix K=4, h=20, attack=10% of N. Sweep N ∈ {50,100,200,400}.
+8b. Graph models: Same attack/recovery on SBM vs ER, BA, WS at matched density.
 """
 from __future__ import annotations
 from typing import List

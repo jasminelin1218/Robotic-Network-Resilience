@@ -3,6 +3,31 @@ experiments/exp3_attack.py
 ===========================
 Experiment 3 — Attack Robustness & Cascade Threshold
 
+Narrative position  —  Act 2, step 2
+--------------------------------------
+Motivation (from Exp 2):
+  Exp 2 showed that calibration nodes can reduce final infection — but
+  the benefit plateaus.  Before designing stronger defenses we need to
+  know: how many attacker seeds does it actually take to trigger an
+  irreversible cascade?  If the cascade threshold is high, lightweight
+  defenses suffice; if it is low, we need more aggressive intervention.
+
+Hypothesis:
+  There exists a sharp cascade threshold (not a gradual ramp) at roughly
+  8–12 seeds for h ≈ 12 — below it the system self-recovers, above it
+  it collapses.  Concentrated attacks will have a lower threshold than
+  scattered attacks because they overwhelm a single squad's recovery.
+
+What we measure:
+  Sweep attack count 1–20 under concentrated and scattered distributions.
+  For each, identify the cascade threshold as the point where peak
+  infection jumps non-linearly (using core.metrics.find_cascade_threshold).
+
+Handoff → Exp 5:
+  We know the cascade threshold for the default (α=0.6, β=0.4) trust
+  model.  Exp 5 asks: does changing the in/out-group weight balance
+  move that threshold, and can it be used as a defense?
+
 Cascade occurs between 8-12 seeds at p_out=0.05 — clearly visible.
 """
 from __future__ import annotations

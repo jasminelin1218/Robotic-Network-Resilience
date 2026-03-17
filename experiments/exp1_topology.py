@@ -1,11 +1,30 @@
 """
 experiments/exp1_topology.py
 =============================
-Experiment 1 — Topological Resilience
+Experiment 1 — Topological Resilience (K × h Resilience Surface)
 
-Research question
------------------
-Which combination of K (squad count) and homophily h minimises infection spread?
+Narrative position  —  Act 1, step 3  (final Act 1 result)
+------------------------------------------------------------
+Motivation (from Exp 7):
+  Exp 7 showed that λ₂ is a reliable predictor of infection spread — it
+  is the mechanism linking topology to vulnerability.  Now we need to
+  translate that into actionable design guidance: for a robot swarm
+  designer who controls K (number of squads) and p_out (inter-squad
+  link probability), what combination minimises spread?
+
+Hypothesis:
+  There exists an optimal K* and a threshold h* below which cascades are
+  suppressed.  The resilience surface (peak infection vs K vs h) will
+  reveal a clear "safe zone" that a practitioner can target.
+
+What we measure:
+  2-D grid sweep of K ∈ {2,4,6,8} and h = p_in/p_out ∈ {4, …, 40}.
+  Both peak and final infection are reported as heatmaps.
+
+Handoff → Act 2 (Exp 2):
+  We now know WHICH topology is safest.  The next question is:
+  given that topology, can we make the system even MORE robust using
+  calibration nodes and active defenses?
 
 Parameters confirmed to show clear dynamics:
   alpha=0.6, beta=0.4, threshold=0.3, p_c=0.3, attack=10, no calib nodes

@@ -93,6 +93,19 @@ def initialize_agents(
         calib_pool = by_group[0]
     elif calib_distribution == 'other_group':
         calib_pool = by_group[1 % K]
+    elif calib_distribution == 'bridge':
+        # Place calibration nodes at highest bridge-score nodes.
+        # Bridge score = betweenness × cross-group fraction (from exp_centrality).
+        bet = nx.betweenness_centrality(G, normalized=True)
+        bridge_scores = {}
+        for nd in G.nodes():
+            nb = list(G.neighbors(nd))
+            if not nb:
+                bridge_scores[nd] = 0.0
+                continue
+            cross = sum(1 for n in nb if G.nodes[n]['group'] != G.nodes[nd]['group'])
+            bridge_scores[nd] = bet[nd] * (cross / len(nb))
+        calib_pool = sorted(G.nodes(), key=lambda nd: bridge_scores[nd], reverse=True)
     else:   # 'scattered' — spread proportionally across all groups
         calib_pool = []
         per_group = max(1, calib_count // K)

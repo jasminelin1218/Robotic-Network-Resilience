@@ -1,7 +1,22 @@
 """
 experiments/exp9_disparity.py
 ==============================
-Experiment 9 — Inter-Group Information Disparity  (Topic 6 Core Requirement)
+Experiment 9 — Inter-Group Disparity: The Gaming Gap  (Topic 6 Core)
+
+Narrative position  —  Act 3, step 2
+--------------------------------------
+Motivation (from Exp 8a):
+  Exp 8a confirmed that the cascade dynamics scale well with N — the
+  fraction infected stays roughly constant.  But "fraction infected"
+  is a system-wide average that hides an important question: are all
+  squads equally affected?  Homophily was designed to CONTAIN infection,
+  but containment means Squad 0 (the attacked squad) bears the cost
+  while other squads are protected.  Is that gap large and does it grow?
+
+Gaming gap — formal definition introduced here:
+  Δ(h) = infection_rate(Squad 0) − mean infection_rate(other squads)
+  A positive Δ means Squad 0 is disproportionately burdened.
+  This metric is used in Exp 10 to track fairness across feedback rounds.
 
 Topic 6 mapping
 ---------------

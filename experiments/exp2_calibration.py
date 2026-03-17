@@ -3,6 +3,32 @@ experiments/exp2_calibration.py
 ================================
 Experiment 2 — Calibration Node Deployment Strategy
 
+Narrative position  —  Act 2, step 1  (opening the defense act)
+----------------------------------------------------------------
+Motivation (from Act 1 conclusion):
+  Act 1 established that topology is the primary vulnerability driver:
+  low λ₂ (low h) makes cascades near-inevitable.  But topology is
+  often fixed by the mission environment.  What can an operator do
+  at runtime?  Calibration nodes — robots with ground-truth correct
+  state that never get infected — are the first lever.
+
+Hypothesis:
+  Calibration nodes placed LOCALLY in the attack squad (concentrated)
+  will be more effective than spreading them across all squads, because
+  the infection originates in one squad and the threshold-contagion
+  model requires local healthy peer pressure to trigger recovery.
+
+What we measure:
+  Sweep calibration count (0 → 20) under four placement strategies:
+    concentrated, scattered, attack_group, other_group.
+  Metric: final and peak infection fraction.
+
+Handoff → Exp 3:
+  Calibration placement is our first tool; but the best placement only
+  helps if the attack is not too large.  Exp 3 finds the cascade
+  threshold — the number of attack seeds beyond which even optimal
+  calibration fails.
+
 Parameters: h=30 (p_out=0.02), attack=10 — infected regime where
 calibration nodes make a measurable difference.
 """
@@ -19,12 +45,13 @@ from core.simulation import monte_carlo
 RUNS   = 100
 N      = 100
 
-DISTRIBUTIONS = ['concentrated', 'scattered', 'attack_group', 'other_group']
+DISTRIBUTIONS = ['concentrated', 'scattered', 'attack_group', 'other_group', 'bridge']
 COLORS = {
     'concentrated': '#E24B4A',
     'scattered':    '#378ADD',
     'attack_group': '#EF9F27',
     'other_group':  '#1D9E75',
+    'bridge':       '#9B59B6',  # purple — bridge nodes guided by exp_centrality
 }
 
 
@@ -87,8 +114,9 @@ def plot(data: dict, save: bool = True) -> None:
             ax.set_ylim(0, 1.05)
 
     plt.suptitle('Experiment 2 — Calibration Node Deployment Strategy\n'
-                 '(high-homophily regime h=30, attack=10)',
-                 fontsize=13, fontweight='bold')
+                 '(high-homophily regime h=30, attack=10)\n'
+                 'Bridge strategy: calibration placed at highest betweenness × cross-group nodes (from Pre-Exp B)',
+                 fontsize=12, fontweight='bold')
     plt.tight_layout()
     if save:
         plt.savefig(os.path.join(get_output_dir(), 'exp2_calibration.png'),

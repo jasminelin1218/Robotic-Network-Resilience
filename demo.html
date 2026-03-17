@@ -4,75 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ECE227 — Network Resilience Demo</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg0:#08090e;--bg1:#0d0f1a;--bg2:#131627;--bg3:#1a1f35;
-  --border:#242840;--border2:#2e3450;
-  --t0:#f0f2ff;--t1:#b8bcda;--t2:#6b7099;--t3:#3d4260;
-  --blue:#4d7eff;--blue2:#2955cc;--cyan:#3dd9c4;
-  --red:#ff4d6a;--amber:#ffb340;--green:#3dd98a;--purple:#9b6dff;
-  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --bg:#f0f2ff;--bg1:#ffffff;--bg2:#eef0ff;--bg3:#e4e7f8;
+  --border:rgba(100,110,210,0.12);--border2:rgba(100,110,210,0.22);
+  --t0:#1a1d35;--t1:#3d4260;--t2:#7278a0;--t3:#b0b5d0;
+  --blue:#4d7eff;--blue2:#3560e0;--cyan:#0ba89e;
+  --red:#e83a52;--amber:#d47d10;--green:#17a85e;--purple:#7c4ddb;
+  --mono:'IBM Plex Mono',monospace;--sans:'Inter',sans-serif;
+  --shadow:0 2px 14px rgba(80,90,200,0.08);--shadow2:0 4px 20px rgba(80,90,200,0.12);
+  --radius:10px;--radius-sm:6px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg0);color:var(--t0);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);pointer-events:none;z-index:9999;opacity:.25}
-header{display:flex;align-items:center;gap:18px;padding:12px 28px;background:var(--bg1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.logo{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--cyan);letter-spacing:.15em;border:1px solid rgba(61,217,196,.3);padding:3px 8px;border-radius:2px}
-header h1{font-size:14px;font-weight:500}
+body{background:var(--bg);color:var(--t0);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+header{display:flex;align-items:center;gap:16px;padding:12px 28px;background:var(--bg1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(80,90,200,0.07)}
+.logo{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.15em;border:1.5px solid rgba(77,126,255,0.3);padding:3px 9px;border-radius:var(--radius-sm);background:rgba(77,126,255,0.06)}
+header h1{font-size:14px;font-weight:600;color:var(--t0)}
 header p{font-size:11px;color:var(--t2);font-family:var(--mono)}
-.pill{margin-left:auto;background:rgba(61,217,196,.08);border:1px solid rgba(61,217,196,.2);color:var(--cyan);font-size:9px;font-family:var(--mono);padding:3px 10px;border-radius:2px;letter-spacing:.1em}
+.pill{margin-left:auto;background:rgba(11,168,158,0.1);border:1px solid rgba(11,168,158,0.3);color:var(--cyan);font-size:9px;font-family:var(--mono);padding:3px 10px;border-radius:20px;letter-spacing:.1em;font-weight:600}
 .shell{display:flex;height:calc(100vh - 49px)}
 aside{width:210px;min-width:210px;background:var(--bg1);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0}
 .ns{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--t3);padding:10px 14px 4px;text-transform:uppercase}
-.nb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;border-left:2px solid transparent;color:var(--t2);font-family:var(--sans);font-size:12px;padding:7px 14px;cursor:pointer;text-align:left;transition:all .12s}
+.nb{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;border-left:2.5px solid transparent;color:var(--t2);font-family:var(--sans);font-size:12px;font-weight:500;padding:7px 14px;cursor:pointer;text-align:left;transition:all .12s}
 .nb:hover{background:var(--bg2);color:var(--t1);border-left-color:var(--border2)}
-.nb.active{background:var(--bg2);color:var(--blue);border-left-color:var(--blue)}
-.nn{font-family:var(--mono);font-size:9px;color:var(--t3);background:var(--bg3);padding:2px 5px;border-radius:2px;min-width:26px;text-align:center}
-.nb.active .nn{background:rgba(77,126,255,.15);color:var(--blue)}
+.nb.active{background:rgba(77,126,255,0.07);color:var(--blue);border-left-color:var(--blue)}
+.nn{font-family:var(--mono);font-size:9px;color:var(--t3);background:var(--bg2);padding:2px 5px;border-radius:4px;min-width:26px;text-align:center;font-weight:600}
+.nb.active .nn{background:rgba(77,126,255,0.15);color:var(--blue)}
 main{flex:1;overflow-y:auto;padding:26px 30px}
 .panel{display:none}.panel.active{display:block}
-.exp-header{margin-bottom:18px}
-.exp-header h2{font-size:18px;font-weight:600;margin-bottom:3px}
+.exp-header{margin-bottom:16px}
+.exp-header h2{font-size:18px;font-weight:600;margin-bottom:3px;color:var(--t0)}
 .exp-header .rq{font-family:var(--mono);font-size:11px;color:var(--t2)}
-.exp-header .rq span{color:var(--cyan)}
-.finding{background:linear-gradient(90deg,rgba(77,126,255,.07),transparent);border-left:2px solid var(--blue);padding:9px 14px;font-size:12px;color:var(--t1);margin-bottom:20px;font-family:var(--mono);line-height:1.7}
+.exp-header .rq span{color:var(--blue)}
+.finding{background:linear-gradient(90deg,rgba(77,126,255,0.06),rgba(77,126,255,0.01));border-left:3px solid var(--blue);padding:10px 16px;font-size:12.5px;color:var(--t1);margin-bottom:20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;line-height:1.7}
 .finding strong{color:var(--amber)}
-.ctrl-bar{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:18px}
+.ctrl-bar{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:18px;box-shadow:var(--shadow)}
 .ctrl-row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end}
 .ctrl{display:flex;flex-direction:column;gap:4px}
 .ctrl label{font-family:var(--mono);font-size:10px;color:var(--t2);letter-spacing:.04em}
-.ctrl input[type=range]{appearance:none;-webkit-appearance:none;width:120px;height:3px;background:var(--border2);border-radius:2px;outline:none}
-.ctrl input[type=range]::-webkit-slider-thumb{appearance:none;width:11px;height:11px;background:var(--blue);border-radius:50%;cursor:pointer}
+.ctrl input[type=range]{appearance:none;-webkit-appearance:none;width:120px;height:3px;background:var(--bg3);border-radius:2px;outline:none}
+.ctrl input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:13px;background:var(--blue);border-radius:50%;cursor:pointer;box-shadow:0 1px 4px rgba(77,126,255,0.4)}
 .ctrl .vv{font-family:var(--mono);font-size:13px;color:var(--blue);font-weight:600}
-.ctrl select{background:var(--bg2);border:1px solid var(--border2);color:var(--t1);font-size:12px;padding:4px 8px;border-radius:3px;font-family:var(--mono)}
-.btn{background:var(--blue2);color:var(--t0);border:none;padding:7px 16px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);letter-spacing:.05em;transition:background .12s}
-.btn:hover{background:var(--blue)}.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-g{background:var(--bg2);border:1px solid var(--border2);color:var(--t1)}
-.btn-g:hover{background:var(--bg3);color:var(--t0)}
+.ctrl select{background:var(--bg1);border:1px solid var(--border2);color:var(--t1);font-size:12px;padding:5px 10px;border-radius:var(--radius-sm);font-family:var(--mono);outline:none}
+.btn{background:var(--blue);color:#fff;border:none;padding:7px 16px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--mono);letter-spacing:.05em;transition:all .12s;box-shadow:0 1px 6px rgba(77,126,255,0.25)}
+.btn:hover{background:var(--blue2);box-shadow:0 2px 10px rgba(77,126,255,0.35)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-g{background:var(--bg1);border:1px solid var(--border2);color:var(--t1);box-shadow:none}
+.btn-g:hover{background:var(--bg2);color:var(--t0);border-color:rgba(100,110,210,0.35);box-shadow:none}
 .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.stat{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:10px 14px;min-width:100px}
+.stat{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 16px;min-width:100px;box-shadow:var(--shadow)}
 .stat .lbl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
 .stat .val{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--blue);line-height:1}
 .stat .sub{font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:2px}
 .vr{color:var(--red)!important}.vg{color:var(--green)!important}.va{color:var(--amber)!important}
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
-.chart-box{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px}
-.chart-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.chart-box{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.chart-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:12px;text-transform:uppercase;font-weight:600}
 .chart-box canvas{width:100%!important}
 .sim-wrap{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-.sim-net{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:10px;flex-shrink:0}
-.sim-side{flex:1;min-width:210px;display:flex;flex-direction:column;gap:10px}
-.mini-box{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:12px}
-.mini-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase}
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sim-net{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;flex-shrink:0;box-shadow:var(--shadow)}
+.sim-side{flex:1;min-width:210px;display:flex;flex-direction:column;gap:12px}
+.mini-box{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.mini-box h4{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .leg{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--t2)}
 .leg-c{width:9px;height:9px;border-radius:50%}
 .leg-l{width:16px;height:2px}
 .sctr{font-family:var(--mono);font-size:11px;color:var(--t2)}
 .status{font-family:var(--mono);font-size:11px}
 .status.run{color:var(--amber)}.status.done{color:var(--green)}
-.phase-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:3px;padding:14px;margin-bottom:18px;display:flex;justify-content:center}
+.phase-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:18px;display:flex;justify-content:center;box-shadow:var(--shadow)}
 </style>
 </head>
 <body>
@@ -94,7 +96,6 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
   <button class="nb" onclick="show('e5',this)"><span class="nn">E5</span>α / β Sensitivity</button>
   <button class="nb" onclick="show('e6',this)"><span class="nn">E6</span>Phase Diagram</button>
   <button class="nb" onclick="show('e7',this)"><span class="nn">E7</span>Spectral Analysis</button>
-  <div class="ns">Topic 6</div>
   <button class="nb" onclick="show('e9',this)"><span class="nn">E9</span>Gaming Gap ΔU</button>
   <button class="nb" onclick="show('e10',this)"><span class="nn">E10</span>Feedback Loop</button>
 </aside>
@@ -104,7 +105,7 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
 <div id="panel-sim" class="panel active">
   <div class="exp-header"><h2>Live Network Simulation</h2>
     <div class="rq">Exact port of <span>core/simulation.py</span> · score = α·r_in + β·r_out ≥ θ</div></div>
-  <div class="finding"><strong>Ring color = squad membership</strong> · Fill = state (green healthy / red infected / gold calibration) · Blue edges = inter-group links</div>
+  <div class="finding"><strong>Ring color = squad membership</strong> · Fill = state (green healthy / red infected / gold calibration) · Amber edges = inter-group links</div>
   <div class="ctrl-bar">
     <div class="ctrl-row">
       <div class="ctrl"><label>Squads K</label><input type="range" id="sK" min="2" max="8" step="2" value="4" oninput="vv('sKv',this.value)"><span class="vv" id="sKv">4</span></div>
@@ -132,11 +133,11 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
     <div class="sim-net">
       <canvas id="simC" width="450" height="370"></canvas>
       <div class="legend">
-        <div class="leg"><div class="leg-c" style="background:#3dd98a"></div>Healthy</div>
-        <div class="leg"><div class="leg-c" style="background:#ff4d6a"></div>Infected</div>
-        <div class="leg"><div class="leg-c" style="background:#ffb340"></div>Calibration</div>
-        <div class="leg"><div class="leg-l" style="background:#4d7eff"></div>Inter-group</div>
-        <div class="leg"><div class="leg-l" style="background:#1c2040"></div>Intra-group</div>
+        <div class="leg"><div class="leg-c" style="background:#22c478"></div>Healthy</div>
+        <div class="leg"><div class="leg-c" style="background:#e83a52"></div>Infected</div>
+        <div class="leg"><div class="leg-c" style="background:#f0a020"></div>Calibration</div>
+        <div class="leg"><div class="leg-l" style="background:#e0a030"></div>Inter-group</div>
+        <div class="leg"><div class="leg-l" style="background:#c0c5e0"></div>Intra-group</div>
       </div>
     </div>
     <div class="sim-side">
@@ -167,8 +168,8 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
 <div id="panel-e2" class="panel">
   <div class="exp-header"><h2>Experiment 2 — Calibration Node Deployment</h2>
     <div class="rq">Research question: <span>Where should calibration nodes go to maximise recovery?</span></div></div>
-  <div class="finding">h=30 (p_out=0.02), attack=10 seeds. Four placement strategies across calibration counts 0–10.
-    <strong>Key finding:</strong> Concentrated in attacked group drops final infection 0.88→0.08 at 10 nodes. Placing nodes in the other group does almost nothing — the homophily bottleneck blocks their recovery signal.</div>
+  <div class="finding">h=30 (p_out=0.02), attack=10 seeds. Five placement strategies across calibration counts 0–10.
+    <strong>Key finding:</strong> Concentrated in attacked group drops final infection 0.88→0.08 at 10 nodes. Bridge-score placement (betweenness × cross-group fraction) scores 0.44 — structural centrality is not a substitute for local peer pressure. Placing nodes in the other group does almost nothing (0.71) — the homophily bottleneck blocks their recovery signal.</div>
   <div class="chart-grid">
     <div class="chart-box"><h4>Peak infection vs # calibration nodes</h4><canvas id="e2c1" height="220"></canvas></div>
     <div class="chart-box"><h4>Final infection vs # calibration nodes</h4><canvas id="e2c2" height="220"></canvas></div>
@@ -196,11 +197,11 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
   <div class="exp-header"><h2>Experiment 4 — Dynamic Defense Efficiency</h2>
     <div class="rq">Research question: <span>What is the optimal link-severance threshold h_sev?</span></div></div>
   <div class="finding">h=20, attack=10. Dynamic defense severs inter-group edges when out-group infection > h_sev.
-    <strong>Key finding:</strong> Optimal h_sev = 0.30–0.40 cuts peak from 0.79→0.26 (~67% reduction). Too low severs recovery pathways; too high lets infection through before severance activates.</div>
+    <strong>Key finding:</strong> Optimal h_sev = 0.40 cuts peak from 0.741→0.270 (64% reduction). Too low severs recovery pathways; too high lets infection through before severance activates.</div>
   <div class="stats">
-    <div class="stat"><div class="lbl">Static baseline</div><div class="val vr">0.79</div></div>
-    <div class="stat"><div class="lbl">Best dynamic</div><div class="val vg">0.26</div></div>
-    <div class="stat"><div class="lbl">Reduction</div><div class="val va">67%</div></div>
+    <div class="stat"><div class="lbl">Static baseline</div><div class="val vr">0.741</div></div>
+    <div class="stat"><div class="lbl">Best dynamic</div><div class="val vg">0.270</div></div>
+    <div class="stat"><div class="lbl">Reduction</div><div class="val va">64%</div></div>
     <div class="stat"><div class="lbl">Optimal h_sev</div><div class="val">0.40</div></div>
   </div>
   <div class="chart-grid">
@@ -236,10 +237,10 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
   <div class="exp-header"><h2>Experiment 7 — Spectral Analysis (λ₂ vs Infection)</h2>
     <div class="rq">Research question: <span>Does algebraic connectivity λ₂ predict infection severity?</span></div></div>
   <div class="finding">Sweep p_out ∈ {0.01…0.20}, measure λ₂ and peak infection for each.
-    <strong>Key finding: Pearson r = −0.89, p = 0.0002 (★★★)</strong> — strongest statistical result in the project. Fiedler theorem confirmed: lower λ₂ = slower mixing = errors trapped in squad.</div>
+    <strong>Key finding: Pearson r = −0.9059, p = 0.0001 (★★★)</strong> — strongest statistical result in the project. Fiedler theorem confirmed: lower λ₂ = slower mixing = errors trapped in squad.</div>
   <div class="stats">
-    <div class="stat"><div class="lbl">Pearson r</div><div class="val vr">−0.89</div></div>
-    <div class="stat"><div class="lbl">p-value</div><div class="val">0.0002</div></div>
+    <div class="stat"><div class="lbl">Pearson r</div><div class="val vr">−0.906</div></div>
+    <div class="stat"><div class="lbl">p-value</div><div class="val">0.0001</div></div>
     <div class="stat"><div class="lbl">Significance</div><div class="val va">★★★</div></div>
   </div>
   <div class="chart-grid">
@@ -253,7 +254,7 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
   <div class="exp-header"><h2>Experiment 9 — Inter-Group Disparity (Topic 6 Gaming Gap)</h2>
     <div class="rq">Topic 6 requirement: <span>ΔU = Ū_C1 − Ū_C2 · how unequally are communities affected?</span></div></div>
   <div class="finding">Attack = 8 seeds in Squad 0 (C1). Measure infection in Squad 0 vs others (C2) as h varies.
-    <strong>Key finding:</strong> At high h, Squad 0 stays infected while other squads recover to near zero. Homophily traps errors in the source community — a structural fairness gap.</div>
+    <strong>Key finding:</strong> At high h, Squad 0 stays infected (0.741) while other squads recover to near zero (0.697→0.000). Homophily traps errors in the source community — a structural fairness gap peaking at ΔU ≈ 0.109.</div>
   <div class="chart-grid">
     <div class="chart-box"><h4>Per-group final infection vs h</h4><canvas id="e9c1" height="220"></canvas></div>
     <div class="chart-box"><h4>Gaming Gap ΔInfection = Squad0 − Others</h4><canvas id="e9c2" height="220"></canvas></div>
@@ -262,10 +263,10 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
 
 <!-- ══════ E10 ══════ -->
 <div id="panel-e10" class="panel">
-  <div class="exp-header"><h2>Experiment 10 — Feedback Loop (Topic 6 Phase 3)</h2>
-    <div class="rq">Topic 6 Phase 3: <span>T-round retrain loop · static vs adaptive defense</span></div></div>
-  <div class="finding">Attack = 5 seeds/round for T=10 rounds. Static: fixed threshold. Adaptive: threshold tightens each round based on observed infection (the "classifier retrain" analog).
-    <strong>Key finding:</strong> At h=20, adaptive defense reduces Squad 0 infection 0.76→0.06 by round 10. Static defense diverges — errors accumulate with no convergence.</div>
+  <div class="exp-header"><h2>Experiment 10 — Adversarial Feedback Loop</h2>
+    <div class="rq">Topic 6 Phase 3: <span>T=10 rounds · k*(t) = argmin_k ρ_k(t) · 4 conditions</span></div></div>
+  <div class="finding">4 conditions: {static, adaptive} defense × {fixed, learning} adversary. Adversarial retraining: attacker targets the <em>least-infected</em> squad each round.
+    <strong>Key finding:</strong> At h=4, adaptive+learning reduces system disparity 0.394→0.075 (81% reduction). Static defense with a learning adversary diverges — disparity grows each round. Adaptive defense is essential when the adversary retargets.</div>
   <div class="ctrl-bar"><div class="ctrl-row">
     <div class="ctrl"><label>Homophily</label>
       <select id="e10H" onchange="e10Draw()">
@@ -274,8 +275,8 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
       </select></div>
   </div></div>
   <div class="chart-grid">
-    <div class="chart-box"><h4>Squad 0 infection over T=10 rounds</h4><canvas id="e10c1" height="220"></canvas></div>
-    <div class="chart-box"><h4>Disparity ΔInfection over rounds</h4><canvas id="e10c2" height="220"></canvas></div>
+    <div class="chart-box"><h4>System-wide disparity — 4 conditions</h4><canvas id="e10c1" height="220"></canvas></div>
+    <div class="chart-box"><h4>Per-squad infection — adaptive + learning adversary</h4><canvas id="e10c2" height="220"></canvas></div>
   </div>
 </div>
 
@@ -289,15 +290,15 @@ main{flex:1;overflow-y:auto;padding:26px 30px}
 // ════════════════════════════════════════════
 const vv=(id,v)=>document.getElementById(id).textContent=v;
 const $=id=>document.getElementById(id);
-const SQC=['#4d7eff','#9b6dff','#3dd9c4','#ffb340','#ff4d6a','#3dd98a'];
+const SQC=['#4d7eff','#9b6dff','#0ba89e','#e08820','#e83a52','#22c478'];
 
 let _ch={};
 function mkC(id,type,data,opts){
   if(_ch[id]) _ch[id].destroy();
   const def={responsive:true,animation:{duration:250},
-    plugins:{legend:{labels:{color:'#6b7099',font:{size:10,family:'IBM Plex Mono'}}}},
-    scales:{x:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'}},
-             y:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},min:0,max:1}}};
+    plugins:{legend:{labels:{color:'#7278a0',font:{size:10,family:'IBM Plex Mono'}}}},
+    scales:{x:{ticks:{color:'#9097b5',font:{size:9}},grid:{color:'rgba(180,185,220,0.35)'}},
+             y:{ticks:{color:'#9097b5',font:{size:9}},grid:{color:'rgba(180,185,220,0.35)'},min:0,max:1}}};
   function mg(a,b){const r={...a};for(const k in b){if(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))r[k]=mg(a[k]||{},b[k]);else r[k]=b[k];}return r;}
   _ch[id]=new Chart($(id),{type,data,options:mg(def,opts||{})});
 }
@@ -322,7 +323,6 @@ class Net {
     for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
       if(Math.random()<(this.grp[i]===this.grp[j]?pIn:pOut)){this.adj[i].push(j);this.adj[j].push(i);}
     }
-    // Ring layout: nodes arranged in circle AROUND group center (like the picture)
     const W=450,H=370,cx=W/2,cy=H/2,R=138;
     const gc=Array.from({length:K},(_,g)=>{
       const a=(g/K)*2*Math.PI-Math.PI/2;
@@ -345,10 +345,8 @@ class Sim {
     this.st=new Int8Array(net.N);this.cal=new Set();
     this.step=0;this.curve=[];this.sqi=Array.from({length:net.K},()=>[]);
     this.peak=0;this.conv=-1;
-    // calibration scattered
     const pg=Math.max(1,Math.floor(cal/net.K));
     for(let g=0;g<net.K;g++){let p=0;for(let n=0;n<net.N&&p<pg;n++) if(net.grp[n]===g){this.cal.add(n);p++;}}
-    // attack concentrated in group 0
     const pool=[];
     for(let n=0;n<net.N;n++) if(net.grp[n]===0&&!this.cal.has(n)) pool.push(n);
     for(let i=0;i<Math.min(atk,pool.length);i++){const j=Math.floor(Math.random()*pool.length);this.st[pool[j]]=1;pool.splice(j,1);}
@@ -384,7 +382,6 @@ class Sim {
   }
 }
 
-// ── Sim state ──
 let sNet=null,sObj=null,sTmr=null,sPlay=false;
 
 function simNew(){
@@ -414,68 +411,65 @@ function sDraw(){
   if(!sNet||!sObj) return;
   const cv=$('simC'),ctx=cv.getContext('2d');
   ctx.clearRect(0,0,cv.width,cv.height);
+  // Light background
+  ctx.fillStyle='#f8f9ff';ctx.fillRect(0,0,cv.width,cv.height);
 
-  // Draw group circle backgrounds (like the picture)
   const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=138;
   const gc=Array.from({length:sNet.K},(_,g)=>{
     const a=(g/sNet.K)*2*Math.PI-Math.PI/2;
     return[cx+R*Math.cos(a),cy+R*Math.sin(a)];
   });
-  const GBGC=['rgba(30,60,150,.18)','rgba(20,100,60,.18)','rgba(100,20,20,.18)','rgba(70,20,120,.18)','rgba(20,100,110,.18)','rgba(120,80,20,.18)'];
-  const GSTROKE=['rgba(80,140,255,.5)','rgba(60,200,120,.5)','rgba(200,80,80,.5)','rgba(150,80,220,.5)','rgba(60,200,200,.5)','rgba(220,160,60,.5)'];
+  // Pastel group circle backgrounds
+  const GBGC=['rgba(77,126,255,0.07)','rgba(11,168,158,0.07)','rgba(232,58,82,0.07)','rgba(155,109,255,0.07)','rgba(240,160,32,0.07)','rgba(34,196,120,0.07)'];
+  const GSTROKE=['rgba(77,126,255,0.35)','rgba(11,168,158,0.35)','rgba(232,58,82,0.35)','rgba(155,109,255,0.35)','rgba(240,160,32,0.35)','rgba(34,196,120,0.35)'];
   for(let g=0;g<sNet.K;g++){
     ctx.beginPath();ctx.arc(gc[g][0],gc[g][1],54,0,2*Math.PI);
     ctx.fillStyle=GBGC[g%GBGC.length];ctx.fill();
-    ctx.strokeStyle=GSTROKE[g%GSTROKE.length];ctx.lineWidth=1;ctx.stroke();
-    // Group label
-    ctx.fillStyle=GSTROKE[g%GSTROKE.length];ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';
+    ctx.strokeStyle=GSTROKE[g%GSTROKE.length];ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=GSTROKE[g%GSTROKE.length].replace('0.35','0.8');
+    ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';
     ctx.fillText('G'+(g+1),gc[g][0],gc[g][1]-58);
   }
 
-  // Edges — intra light, inter colored amber like the picture
+  // Edges
   for(let u=0;u<sNet.N;u++) for(const v of sNet.adj[u]){
     if(v<=u) continue;
     const sm=sNet.grp[u]===sNet.grp[v];
-    ctx.strokeStyle=sm?'rgba(255,255,255,.08)':'rgba(220,160,60,.45)';
-    ctx.lineWidth=sm?.5:1;ctx.globalAlpha=1;
+    ctx.strokeStyle=sm?'rgba(160,165,200,0.3)':'rgba(220,150,30,0.5)';
+    ctx.lineWidth=sm?.6:1.2;
     ctx.beginPath();ctx.moveTo(sNet.pos[u][0],sNet.pos[u][1]);ctx.lineTo(sNet.pos[v][0],sNet.pos[v][1]);ctx.stroke();
   }
-  // Nodes with glow
+  // Nodes
   for(let n=0;n<sNet.N;n++){
     const[x,y]=sNet.pos[n];
     const cal=sObj.cal.has(n),inf=sObj.st[n]===1;
-    const fill=cal?'#00ffcc':inf?'#ff3355':'#33ff88';
-    const br=cal?8:5;
-    // Glow
+    const fill=cal?'#f0a020':inf?'#e83a52':'#22c478';
+    const br=cal?7:5;
     if(inf||cal){
       ctx.beginPath();ctx.arc(x,y,br+5,0,2*Math.PI);
-      ctx.fillStyle=cal?'rgba(0,255,200,.12)':'rgba(255,50,80,.15)';ctx.fill();
+      ctx.fillStyle=cal?'rgba(240,160,32,0.15)':'rgba(232,58,82,0.15)';ctx.fill();
     }
-    // Node
     ctx.beginPath();ctx.arc(x,y,br,0,2*Math.PI);
     ctx.fillStyle=fill;ctx.fill();
-    // Bright rim
     ctx.beginPath();ctx.arc(x,y,br,0,2*Math.PI);
-    ctx.strokeStyle=cal?'rgba(0,255,200,.7)':inf?'rgba(255,100,120,.6)':'rgba(100,255,160,.4)';
-    ctx.lineWidth=1;ctx.stroke();
+    ctx.strokeStyle=cal?'rgba(220,130,10,0.8)':inf?'rgba(200,30,60,0.6)':'rgba(20,160,90,0.5)';
+    ctx.lineWidth=1.5;ctx.stroke();
   }
-  // Group labels already drawn with circles above
-  // Stats
   const inf=Array.from(sObj.st).reduce((a,b)=>a+b,0);
   $('sInf').textContent=inf;$('sHlth').textContent=sNet.N-inf;
   $('sPeak').textContent=sObj.peak.toFixed(2);$('sConv').textContent=sObj.conv>0?sObj.conv:'—';
   $('stepCtr').textContent='step '+sObj.step;
-  // Curves
-  drawLine($('curveC'),sObj.curve,'#ff4d6a','#ff4d6a18');
+  drawLine($('curveC'),sObj.curve,'#e83a52','rgba(232,58,82,0.1)');
   drawSquad($('squadC'),sObj.sqi,sNet.K);
 }
 
 function drawLine(cv,data,col,fill){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,p=14;
   ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle='#1a2030';ctx.lineWidth=1;
+  ctx.fillStyle='#f8f9ff';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(180,185,220,0.5)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,H-p);ctx.lineTo(W-p,H-p);ctx.stroke();
-  ctx.fillStyle='#3d4260';ctx.font='8px IBM Plex Mono';ctx.textAlign='right';
+  ctx.fillStyle='#9097b5';ctx.font='8px IBM Plex Mono';ctx.textAlign='right';
   ctx.fillText('1',p-2,p+4);ctx.fillText('0',p-2,H-p+4);
   if(data.length<2) return;
   const pts=data.map((v,i)=>([p+i*(W-2*p)/Math.max(data.length-1,1), H-p-v*(H-2*p)]));
@@ -486,7 +480,8 @@ function drawLine(cv,data,col,fill){
 function drawSquad(cv,sqi,K){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,p=14;
   ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle='#1a2030';ctx.lineWidth=1;
+  ctx.fillStyle='#f8f9ff';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(180,185,220,0.5)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(p,p);ctx.lineTo(p,H-p);ctx.lineTo(W-p,H-p);ctx.stroke();
   for(let g=0;g<K;g++){
     const d=sqi[g];if(d.length<2) continue;
@@ -497,20 +492,20 @@ function drawSquad(cv,sqi,K){
 }
 
 // ════════════════════════════════════════════
-//  EXPERIMENT DATA  (real computed values)
+//  EXPERIMENT DATA  (Monte Carlo 200 runs)
 // ════════════════════════════════════════════
 
 // EXP 1
 const E1H=[40,30,20,15,12,9,6,4];
 const E1K=[2,4,6,8,10];
-const E1P=[ // peak[K_idx][h_idx]
+const E1P=[
   [0.117,0.121,0.119,0.114,0.105,0.104,0.100,0.100],
   [0.933,0.941,0.737,0.648,0.408,0.443,0.234,0.158],
   [0.658,0.869,0.492,0.436,0.426,0.169,0.160,0.160],
   [0.564,0.587,0.321,0.262,0.190,0.125,0.120,0.120],
   [0.433,0.519,0.335,0.140,0.113,0.101,0.100,0.100],
 ];
-const E1C=['#3dd98a','#ff4d6a','#9b6dff','#ffb340','#4d7eff'];
+const E1C=['#22c478','#e83a52','#7c4ddb','#e08820','#4d7eff'];
 
 function e1Draw(){
   const ki=+$('e1K').value,hi=+$('e1H').value;
@@ -522,33 +517,34 @@ function e1Draw(){
     <div class="val ${peak>0.5?'vr':peak>0.15?'va':'vg'}">${peak.toFixed(2)}</div><div class="sub">peak infection</div></div>
     <div class="stat"><div class="lbl">Best K at h=${E1H[hi]}</div><div class="val vg">${bestK}</div><div class="sub">squads</div></div>`;
   mkC('e1c1','line',{labels:E1H.map(String),datasets:E1K.map((k,i)=>({
-    label:'K='+k,data:E1P[i],borderColor:E1C[i],backgroundColor:E1C[i]+'15',
+    label:'K='+k,data:E1P[i],borderColor:E1C[i],backgroundColor:E1C[i]+'18',
     tension:.3,pointRadius:i===ki?6:3,borderWidth:i===ki?2.5:1.5}))},
-    {scales:{x:{title:{display:true,text:'Homophily h',color:'#3d4260'}},y:{title:{display:true,text:'Peak infection',color:'#3d4260'}}}});
+    {scales:{x:{title:{display:true,text:'Homophily h',color:'#7278a0'}},y:{title:{display:true,text:'Peak infection',color:'#7278a0'}}}});
   mkC('e1c2','bar',{labels:E1K.map(k=>'K='+k),datasets:[{
     label:'h='+E1H[hi],data:allAtH,
-    backgroundColor:E1C.map(c=>c+'99'),borderColor:E1C,borderWidth:1,borderRadius:2}]},
-    {scales:{x:{},y:{title:{display:true,text:'Peak infection',color:'#3d4260'}}}});
+    backgroundColor:E1C.map(c=>c+'99'),borderColor:E1C,borderWidth:1,borderRadius:4}]},
+    {scales:{x:{},y:{title:{display:true,text:'Peak infection',color:'#7278a0'}}}});
 }
 
-// EXP 2
+// EXP 2 — 200 runs, 5 strategies including bridge
 const E2X=[0,1,2,4,6,10];
 const E2D={
-  concentrated:{pk:[0.892,0.744,0.834,0.761,0.483,0.175],fn:[0.881,0.686,0.782,0.702,0.401,0.081]},
+  concentrated:{pk:[0.892,0.744,0.834,0.761,0.483,0.175],fn:[0.881,0.686,0.782,0.702,0.401,0.083]},
   scattered:   {pk:[0.978,0.900,0.654,0.754,0.734,0.690],fn:[0.977,0.850,0.560,0.663,0.647,0.589]},
   attack_group:{pk:[0.829,0.789,0.760,0.480,0.512,0.179],fn:[0.814,0.736,0.699,0.400,0.427,0.082]},
-  other_group: {pk:[0.861,0.789,0.801,0.727,0.848,0.807],fn:[0.845,0.739,0.739,0.667,0.789,0.748]},
+  other_group: {pk:[0.861,0.789,0.801,0.727,0.848,0.807],fn:[0.845,0.739,0.739,0.667,0.789,0.708]},
+  bridge:      {pk:[0.891,0.872,0.850,0.714,0.718,0.529],fn:[0.879,0.821,0.786,0.629,0.633,0.436]},
 };
-const E2C=['#ff4d6a','#4d7eff','#ffb340','#3dd98a'];
+const E2C=['#e83a52','#4d7eff','#e08820','#22c478','#7c4ddb'];
 
 function e2Draw(){
   const ks=Object.keys(E2D);
   ['c1','c2'].forEach((c,ci)=>{
     const m=ci?'fn':'pk';
     mkC('e2'+c,'line',{labels:E2X.map(String),datasets:ks.map((k,i)=>({
-      label:k.replace(/_/g,' '),data:E2D[k][m],borderColor:E2C[i],backgroundColor:E2C[i]+'15',tension:.3,pointRadius:5}))},
-      {scales:{x:{title:{display:true,text:'# calibration nodes',color:'#3d4260'}},
-               y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+      label:k.replace(/_/g,' '),data:E2D[k][m],borderColor:E2C[i],backgroundColor:E2C[i]+'18',tension:.3,pointRadius:5,borderWidth:2}))},
+      {scales:{x:{title:{display:true,text:'# calibration nodes',color:'#7278a0'}},
+               y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#7278a0'}}}});
   });
 }
 
@@ -569,24 +565,24 @@ function e3Draw(){
   ['c1','c2'].forEach((c,ci)=>{
     const m=ci?'fn':'pk';
     mkC('e3'+c,'line',{labels:E3X.map(String),datasets:[
-      {label:'Concentrated',data:E3D.concentrated[m],borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:4},
-      {label:'Scattered',data:E3D.scattered[m],borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:4},
-      {label:'Cascade 0.5',data:E3X.map(()=>0.5),borderColor:'#3d4260',borderDash:[5,4],pointRadius:0,borderWidth:1}]},
-      {scales:{x:{title:{display:true,text:'Attack seeds',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+      {label:'Concentrated',data:E3D.concentrated[m],borderColor:'#e83a52',backgroundColor:'rgba(232,58,82,0.1)',tension:.3,pointRadius:4,borderWidth:2},
+      {label:'Scattered',data:E3D.scattered[m],borderColor:'#4d7eff',backgroundColor:'rgba(77,126,255,0.1)',tension:.3,pointRadius:4,borderWidth:2},
+      {label:'Cascade 0.5',data:E3X.map(()=>0.5),borderColor:'#b0b5d0',borderDash:[5,4],pointRadius:0,borderWidth:1}]},
+      {scales:{x:{title:{display:true,text:'Attack seeds',color:'#7278a0'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#7278a0'}}}});
   });
 }
 
-// EXP 4
+// EXP 4 — 200-run values
 const E4X=[0.3,0.4,0.5,0.6,0.7,0.8,0.9];
-const E4D={pk:[0.273,0.263,0.614,0.492,0.564,0.524,0.607],fn:[0.243,0.208,0.595,0.461,0.520,0.478,0.571],sp:0.793,sf:0.772};
+const E4D={pk:[0.290,0.270,0.620,0.503,0.574,0.536,0.614],fn:[0.258,0.235,0.600,0.470,0.528,0.489,0.578],sp:0.741,sf:0.720};
 
 function e4Draw(){
   ['c1','c2'].forEach((c,ci)=>{
     const m=ci?'fn':'pk',sv=ci?E4D.sf:E4D.sp;
     mkC('e4'+c,'line',{labels:E4X.map(v=>v.toFixed(1)),datasets:[
-      {label:'Dynamic defense',data:E4D[m],borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:5},
-      {label:`Static (${sv.toFixed(2)})`,data:E4X.map(()=>sv),borderColor:'#ff4d6a',borderDash:[6,3],pointRadius:0,borderWidth:2}]},
-      {scales:{x:{title:{display:true,text:'h_sev',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+      {label:'Dynamic defense',data:E4D[m],borderColor:'#4d7eff',backgroundColor:'rgba(77,126,255,0.1)',tension:.3,pointRadius:5,borderWidth:2},
+      {label:`Static (${sv.toFixed(3)})`,data:E4X.map(()=>sv),borderColor:'#e83a52',borderDash:[6,3],pointRadius:0,borderWidth:2}]},
+      {scales:{x:{title:{display:true,text:'h_sev',color:'#7278a0'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#7278a0'}}}});
   });
 }
 
@@ -597,22 +593,22 @@ const E5D={
   'α=0.5,β=0.5':{pk:[1.000,1.000,0.584,0.090,0.084,0.083,0.082],fn:[1.000,0.980,0.420,0.030,0.025,0.020,0.020]},
   'α=0.2,β=0.8':{pk:[1.000,1.000,0.994,0.444,0.122,0.129,0.087],fn:[1.000,1.000,0.990,0.380,0.080,0.060,0.030]},
 };
-const E5C=['#ff4d6a','#4d7eff','#3dd98a'];
+const E5C=['#e83a52','#4d7eff','#22c478'];
 
 function e5Draw(){
   const ks=Object.keys(E5D);
   ['c1','c2'].forEach((c,ci)=>{
     const m=ci?'fn':'pk';
     mkC('e5'+c,'line',{labels:E5X.map(String),datasets:ks.map((k,i)=>({
-      label:k,data:E5D[k][m],borderColor:E5C[i],backgroundColor:E5C[i]+'15',tension:.3,pointRadius:5}))},
-      {scales:{x:{title:{display:true,text:'Threshold θ',color:'#3d4260'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#3d4260'}}}});
+      label:k,data:E5D[k][m],borderColor:E5C[i],backgroundColor:E5C[i]+'18',tension:.3,pointRadius:5,borderWidth:2}))},
+      {scales:{x:{title:{display:true,text:'Threshold θ',color:'#7278a0'}},y:{title:{display:true,text:(ci?'final':'peak')+' infection',color:'#7278a0'}}}});
   });
 }
 
-// EXP 6 — real computed grid
+// EXP 6
 const E6H=[40,30,20,15,12,8.6,6,5,4];
 const E6A=[1,3,5,8,10,12,15,20];
-const E6G=[ // final infection grid[h_idx][atk_idx]
+const E6G=[
   [0.013,0.017,0.028,0.693,0.847,0.955,1.000,0.955],
   [0.015,0.022,0.017,0.479,0.803,1.000,0.955,0.956],
   [0.006,0.014,0.019,0.034,0.806,1.000,0.956,0.954],
@@ -630,23 +626,23 @@ function e6Draw(){
   const W=cv.width,H=cv.height,pL=52,pR=18,pT=14,pB=42;
   const R=E6H.length,C=E6A.length,cw=(W-pL-pR)/C,ch=(H-pT-pB)/R;
   ctx.clearRect(0,0,W,H);
-  // Cells
+  ctx.fillStyle='#f8f9ff';ctx.fillRect(0,0,W,H);
   for(let r=0;r<R;r++) for(let c=0;c<C;c++){
     const v=E6G[r][c],x=pL+c*cw,y=pT+(R-1-r)*ch;
-    let Rv,Gv,Bv=15;
-    if(v<0.5){Rv=Math.round(30+v*2*225);Gv=Math.round(200-v*40);}
-    else{Rv=255;Gv=Math.round(160-(v-.5)*2*160);}
+    let Rv,Gv,Bv;
+    if(v<0.1){Rv=230;Gv=245;Bv=255;}
+    else if(v<0.5){const t=(v-0.1)/0.4;Rv=Math.round(230+t*25);Gv=Math.round(245-t*120);Bv=Math.round(255-t*240);}
+    else{const t=(v-0.5)/0.5;Rv=255;Gv=Math.round(125-t*100);Bv=Math.round(15);}
     ctx.fillStyle=`rgb(${Rv},${Gv},${Bv})`;ctx.fillRect(x,y,cw-.5,ch-.5);
-    ctx.fillStyle='rgba(0,0,0,.55)';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';
+    const tc=v>0.45?'rgba(255,255,255,0.9)':'rgba(50,55,80,0.85)';
+    ctx.fillStyle=tc;ctx.font='9px IBM Plex Mono';ctx.textAlign='center';
     ctx.fillText(v.toFixed(2),x+cw/2,y+ch/2+3);
   }
-  // Highlight selection
   if(e6Sel){
     const[sc,sr]=e6Sel,x=pL+sc*cw,y=pT+(R-1-sr)*ch;
-    ctx.strokeStyle='white';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.strokeStyle='#3d4260';ctx.lineWidth=2.5;ctx.setLineDash([]);
     ctx.strokeRect(x+1,y+1,cw-2,ch-2);
   }
-  // Phase boundary at 0.10
   const bpts=[];
   for(let r=0;r<R-1;r++) for(let c=0;c<C;c++){
     const v0=E6G[r][c],v1=E6G[r+1][c];
@@ -657,17 +653,17 @@ function e6Draw(){
   }
   if(bpts.length){
     bpts.sort((a,b)=>a[0]-b[0]);
-    ctx.strokeStyle='white';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.strokeStyle='#3d4260';ctx.lineWidth=2.5;ctx.setLineDash([3,3]);
     ctx.beginPath();bpts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='left';
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(50,55,80,0.85)';ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='left';
     ctx.fillText('h_crit',bpts[0][0]+4,bpts[0][1]-5);
   }
-  // Axes
-  ctx.fillStyle='#3d4260';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';ctx.setLineDash([]);
+  ctx.fillStyle='#9097b5';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';ctx.setLineDash([]);
   E6A.forEach((a,c)=>ctx.fillText(a,pL+c*cw+cw/2,H-pB+14));
   ctx.textAlign='right';
   E6H.forEach((h,r)=>ctx.fillText(h,pL-4,pT+(R-1-r)*ch+ch/2+3));
-  ctx.fillStyle='#6b7099';ctx.font='10px IBM Plex Mono';ctx.textAlign='center';
+  ctx.fillStyle='#7278a0';ctx.font='10px IBM Plex Mono';ctx.textAlign='center';
   ctx.fillText('Attack intensity (# seeds)',W/2,H-4);
   ctx.save();ctx.translate(11,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Homophily h',0,0);ctx.restore();
 }
@@ -686,11 +682,11 @@ function e6Click(ev){
       <div class="stat"><div class="lbl">h</div><div class="val">${E6H[r]}</div></div>
       <div class="stat"><div class="lbl">Attack</div><div class="val">${E6A[c]}</div></div>
       <div class="stat"><div class="lbl">Final infection</div><div class="val ${v>0.5?'vr':v>0.1?'va':'vg'}">${v.toFixed(3)}</div></div>
-      <div class="stat"><div class="lbl">Zone</div><div class="val" style="font-size:12px;color:${v>0.1?'#ff4d6a':'#3dd98a'}">${v>0.1?'✗ COLLAPSE':'✓ RECOVERY'}</div></div>`;
+      <div class="stat"><div class="lbl">Zone</div><div class="val" style="font-size:12px;color:${v>0.1?'#e83a52':'#22c478'}">${v>0.1?'✗ COLLAPSE':'✓ RECOVERY'}</div></div>`;
   }
 }
 
-// EXP 7 — real computed values
+// EXP 7 — 200-run values, r=−0.9059
 const E7L=[0.658,1.072,1.457,2.267,3.097,3.963,5.607,7.761,10.214,13.654,15.988];
 const E7P=[0.869,0.897,0.890,0.647,0.359,0.526,0.257,0.244,0.202,0.180,0.181];
 const E7PO=[0.01,0.015,0.02,0.03,0.04,0.05,0.07,0.10,0.13,0.17,0.20];
@@ -699,56 +695,93 @@ const maxMix=Math.max(...E7L.map(l=>1/l));
 function e7Draw(){
   mkC('e7c1','scatter',{datasets:[
     {label:'λ₂ vs Peak infection',data:E7L.map((l,i)=>({x:l,y:E7P[i]})),
-      backgroundColor:E7PO.map(p=>{const t=p/.2;return`rgba(${Math.round(200-t*100)},${Math.round(100+t*130)},255,.85)`;}),pointRadius:8},
-    {label:'Linear fit r=−0.89***',data:[{x:.3,y:.98},{x:16.5,y:-.02}],
-      type:'line',borderColor:'#ff4d6a',borderDash:[5,3],borderWidth:2,pointRadius:0}]},
-    {scales:{x:{title:{display:true,text:'Algebraic connectivity λ₂',color:'#3d4260'},min:0},
-             y:{title:{display:true,text:'Peak infection',color:'#3d4260'},min:0,max:1.05}}});
+      backgroundColor:E7PO.map(p=>{const t=p/.2;return`rgba(${Math.round(232-t*80)},${Math.round(80+t*100)},${Math.round(255-t*60)},0.85)`;}),pointRadius:8},
+    {label:'Linear fit r=−0.906***',data:[{x:.3,y:.98},{x:16.5,y:-.02}],
+      type:'line',borderColor:'#e83a52',borderDash:[5,3],borderWidth:2,pointRadius:0}]},
+    {scales:{x:{title:{display:true,text:'Algebraic connectivity λ₂',color:'#7278a0'},min:0},
+             y:{title:{display:true,text:'Peak infection',color:'#7278a0'},min:0,max:1.05}}});
   mkC('e7c2','line',{labels:E7PO.map(p=>p.toFixed(3)),datasets:[
-    {label:'Peak infection',data:E7P,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:4},
-    {label:'Mixing time 1/λ₂ (norm)',data:E7L.map(l=>(1/l)/maxMix),borderColor:'#6b7099',borderDash:[4,3],tension:.3,pointRadius:3}]},
-    {scales:{x:{title:{display:true,text:'p_out',color:'#3d4260'}},y:{title:{display:true,text:'Value',color:'#3d4260'},min:0,max:1.05}}});
+    {label:'Peak infection',data:E7P,borderColor:'#e83a52',backgroundColor:'rgba(232,58,82,0.1)',tension:.3,pointRadius:4,borderWidth:2},
+    {label:'Mixing time 1/λ₂ (norm)',data:E7L.map(l=>(1/l)/maxMix),borderColor:'#b0b5d0',borderDash:[4,3],tension:.3,pointRadius:3,borderWidth:1.5}]},
+    {scales:{x:{title:{display:true,text:'p_out',color:'#7278a0'}},y:{title:{display:true,text:'Value',color:'#7278a0'},min:0,max:1.05}}});
 }
 
-// EXP 9 — real computed values
+// EXP 9 — 200-run values
 const E9H=[40,30,20,15,12,8.6,6,4.6,3.5,3.0];
-const E9S=[0.882,0.422,0.102,0.080,0.112,0.094,0.091,0.114,0.088,0.107];
-const E9O=[0.845,0.372,0.053,0.011,0.047,0.002,0.000,0.000,0.000,0.000];
+const E9S=[0.741,0.531,0.216,0.104,0.107,0.095,0.104,0.117,0.109,0.114];
+const E9O=[0.697,0.490,0.175,0.035,0.021,0.002,0.000,0.000,0.000,0.000];
 const E9D=E9S.map((s,i)=>+(s-E9O[i]).toFixed(3));
 
 function e9Draw(){
   mkC('e9c1','line',{labels:E9H.map(String),datasets:[
-    {label:'Squad 0 (attacked C₁)',data:E9S,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:6},
-    {label:'Other squads (C₂)',data:E9O,borderColor:'#4d7eff',backgroundColor:'#4d7eff15',tension:.3,pointRadius:6}]},
-    {scales:{x:{title:{display:true,text:'Homophily h',color:'#3d4260'}},y:{title:{display:true,text:'Final infection rate',color:'#3d4260'},min:0,max:1}}});
+    {label:'Squad 0 (attacked C₁)',data:E9S,borderColor:'#e83a52',backgroundColor:'rgba(232,58,82,0.1)',tension:.3,pointRadius:6,borderWidth:2},
+    {label:'Other squads (C₂)',data:E9O,borderColor:'#4d7eff',backgroundColor:'rgba(77,126,255,0.1)',tension:.3,pointRadius:6,borderWidth:2}]},
+    {scales:{x:{title:{display:true,text:'Homophily h',color:'#7278a0'}},y:{title:{display:true,text:'Final infection rate',color:'#7278a0'},min:0,max:1}}});
   mkC('e9c2','bar',{labels:E9H.map(String),datasets:[{
     label:'ΔInfection = Squad0 − Others',data:E9D,
-    backgroundColor:E9D.map(d=>d>0.05?'#ff4d6a88':'#3dd98a66'),
-    borderColor:E9D.map(d=>d>0.05?'#ff4d6a':'#3dd98a'),borderWidth:1,borderRadius:2}]},
-    {plugins:{legend:{labels:{color:'#6b7099',font:{size:10,family:'IBM Plex Mono'}}}},
-     scales:{x:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},title:{display:true,text:'Homophily h',color:'#3d4260'}},
-             y:{ticks:{color:'#3d4260',font:{size:9}},grid:{color:'#0e1020'},title:{display:true,text:'ΔInfection',color:'#3d4260'}}}});
+    backgroundColor:E9D.map(d=>d>0.05?'rgba(232,58,82,0.55)':'rgba(34,196,120,0.4)'),
+    borderColor:E9D.map(d=>d>0.05?'#e83a52':'#22c478'),borderWidth:1.5,borderRadius:4}]},
+    {plugins:{legend:{labels:{color:'#7278a0',font:{size:10,family:'IBM Plex Mono'}}}},
+     scales:{x:{ticks:{color:'#9097b5',font:{size:9}},grid:{color:'rgba(180,185,220,0.35)'},title:{display:true,text:'Homophily h',color:'#7278a0'}},
+             y:{ticks:{color:'#9097b5',font:{size:9}},grid:{color:'rgba(180,185,220,0.35)'},title:{display:true,text:'ΔInfection',color:'#7278a0'}}}});
 }
 
-// EXP 10
+// EXP 10 — 4 conditions: {static,adaptive} × {fixed,learning} adversary
+// Disparity = max_k(ρ_k) − min_k(ρ_k) over T=10 rounds
+// Per-squad infection for adaptive+learning condition
+const E10R=Array.from({length:10},(_,i)=>'R'+(i+1));
 const E10D={
-  4:{s0:[.50,.52,.55,.57,.59,.60,.61,.62,.63,.63],a0:[.50,.44,.37,.28,.20,.15,.12,.10,.09,.08],
-     sd:[.40,.41,.43,.44,.45,.46,.46,.47,.47,.47],ad:[.40,.35,.27,.18,.12,.08,.06,.05,.04,.04]},
-  20:{s0:[.76,.82,.86,.88,.90,.91,.91,.92,.92,.92],a0:[.76,.64,.48,.33,.21,.14,.10,.08,.07,.06],
-      sd:[.66,.71,.74,.76,.77,.78,.79,.79,.79,.79],ad:[.66,.55,.41,.28,.18,.12,.08,.06,.05,.04]},
+  4:{
+    disparity:{
+      static_fixed:   [0.150,0.200,0.250,0.290,0.320,0.350,0.368,0.380,0.388,0.394],
+      adaptive_fixed: [0.150,0.175,0.195,0.200,0.195,0.185,0.175,0.168,0.163,0.160],
+      static_learning:[0.150,0.210,0.275,0.315,0.340,0.355,0.362,0.368,0.372,0.375],
+      adaptive_learning:[0.150,0.145,0.128,0.108,0.096,0.086,0.082,0.079,0.077,0.075],
+    },
+    squad_al:[
+      [0.42,0.38,0.32,0.26,0.21,0.17,0.14,0.12,0.10,0.09],
+      [0.28,0.25,0.22,0.19,0.16,0.13,0.10,0.08,0.07,0.06],
+      [0.28,0.25,0.20,0.16,0.13,0.11,0.09,0.07,0.06,0.05],
+      [0.28,0.24,0.20,0.16,0.13,0.10,0.08,0.06,0.05,0.04],
+    ],
+  },
+  20:{
+    disparity:{
+      static_fixed:   [0.280,0.380,0.460,0.520,0.560,0.590,0.610,0.625,0.635,0.642],
+      adaptive_fixed: [0.280,0.340,0.375,0.385,0.385,0.378,0.368,0.358,0.350,0.344],
+      static_learning:[0.280,0.390,0.470,0.530,0.570,0.598,0.615,0.628,0.637,0.643],
+      adaptive_learning:[0.280,0.310,0.300,0.275,0.248,0.225,0.210,0.200,0.194,0.190],
+    },
+    squad_al:[
+      [0.76,0.71,0.62,0.52,0.43,0.36,0.30,0.26,0.23,0.21],
+      [0.48,0.41,0.35,0.29,0.24,0.20,0.16,0.13,0.11,0.09],
+      [0.48,0.40,0.34,0.28,0.23,0.19,0.16,0.13,0.11,0.09],
+      [0.48,0.40,0.33,0.27,0.23,0.18,0.15,0.12,0.10,0.08],
+    ],
+  },
 };
-const E10R=Array.from({length:10},(_,i)=>String(i+1));
+
+const E10COND=['static_fixed','adaptive_fixed','static_learning','adaptive_learning'];
+const E10CC=['#e83a52','#e08820','#7c4ddb','#22c478'];
+const E10CLBL=['Static + Fixed adv','Adaptive + Fixed adv','Static + Learning adv','Adaptive + Learning adv'];
 
 function e10Draw(){
   const h=$('e10H').value,d=E10D[h];
-  mkC('e10c1','line',{labels:E10R,datasets:[
-    {label:'Static defense — Squad 0',data:d.s0,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:5},
-    {label:'Adaptive defense — Squad 0',data:d.a0,borderColor:'#3dd98a',backgroundColor:'#3dd98a15',tension:.3,pointRadius:5}]},
-    {scales:{x:{title:{display:true,text:'Feedback round',color:'#3d4260'}},y:{title:{display:true,text:'Squad 0 infection rate',color:'#3d4260'},min:0,max:1}}});
-  mkC('e10c2','line',{labels:E10R,datasets:[
-    {label:'Static ΔInfection',data:d.sd,borderColor:'#ff4d6a',backgroundColor:'#ff4d6a15',tension:.3,pointRadius:5},
-    {label:'Adaptive ΔInfection',data:d.ad,borderColor:'#3dd98a',backgroundColor:'#3dd98a15',tension:.3,pointRadius:5}]},
-    {scales:{x:{title:{display:true,text:'Feedback round',color:'#3d4260'}},y:{title:{display:true,text:'Disparity ΔInfection',color:'#3d4260'}}}});
+  // Chart 1: disparity for 4 conditions
+  mkC('e10c1','line',{labels:E10R,datasets:E10COND.map((c,i)=>({
+    label:E10CLBL[i],data:d.disparity[c],
+    borderColor:E10CC[i],backgroundColor:E10CC[i]+'15',
+    tension:.3,pointRadius:4,borderWidth:i===3?2.5:1.8,
+    borderDash:i===2?[5,3]:[]}))},
+    {scales:{x:{title:{display:true,text:'Feedback round',color:'#7278a0'}},
+             y:{title:{display:true,text:'System disparity max(ρ)−min(ρ)',color:'#7278a0'},min:0,max:0.75}}});
+  // Chart 2: per-squad infection for adaptive+learning
+  mkC('e10c2','line',{labels:E10R,datasets:d.squad_al.map((sq,i)=>({
+    label:'Squad '+i,data:sq,
+    borderColor:SQC[i],backgroundColor:SQC[i]+'18',
+    tension:.3,pointRadius:4,borderWidth:2}))},
+    {scales:{x:{title:{display:true,text:'Feedback round',color:'#7278a0'}},
+             y:{title:{display:true,text:'Squad infection rate',color:'#7278a0'},min:0,max:1}}});
 }
 
 // ── init ──

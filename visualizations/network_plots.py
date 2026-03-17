@@ -69,6 +69,67 @@ def _circular_group_layout(G: nx.Graph, seed: int = 42) -> dict:
     return pos
 
 
+def _terrain_layout(G: nx.Graph, seed: int = 42, spread: float = 0.22) -> dict:
+    """
+    Terrain-style layout: squad centers are scattered randomly across a 2D
+    field (not on a ring), mimicking real-world robot deployment zones.
+
+    - Squad centers are placed via rejection sampling to ensure minimum
+      separation, so squads don't overlap.
+    - Individual robots are scattered in a filled disk around their center.
+    - A light spring-layout pass (using terrain positions as warm start)
+      adds organic edge-based pull without destroying the clustering.
+    """
+    rng = np.random.default_rng(seed)
+    groups = sorted(set(nx.get_node_attributes(G, 'group').values()))
+    by_group = {g: [n for n in G.nodes() if G.nodes[n]['group'] == g]
+                for g in groups}
+
+    # ── Place squad centers with minimum separation ────────────────────────
+    min_sep = 0.60
+    centers: dict = {}
+    for g in groups:
+        for _ in range(500):          # rejection sampling
+            cx, cy = rng.uniform(-0.95, 0.95, 2)
+            if all(np.hypot(cx - c[0], cy - c[1]) > min_sep
+                   for c in centers.values()):
+                centers[g] = (float(cx), float(cy))
+                break
+        else:                         # fallback: place anywhere
+            centers[g] = (float(rng.uniform(-0.9, 0.9)),
+                          float(rng.uniform(-0.9, 0.9)))
+
+    # ── Scatter robots in a filled disk around their squad center ──────────
+    pos: dict = {}
+    for g in groups:
+        cx, cy = centers[g]
+        members = by_group[g]
+        for node in members:
+            angle  = rng.uniform(0, 2 * np.pi)
+            radius = spread * np.sqrt(rng.uniform(0, 1))   # uniform disk
+            pos[node] = (cx + radius * np.cos(angle),
+                         cy + radius * np.sin(angle))
+
+    # ── Light spring refinement (warm-start from terrain positions) ────────
+    # Use strong intra-group weight so squads stay cohesive but edges add
+    # organic pull — 20 iterations keeps the terrain feel intact.
+    G2 = G.copy()
+    for u, v in G2.edges():
+        G2[u][v]['weight'] = (3.0 if G2.nodes[u]['group'] == G2.nodes[v]['group']
+                              else 0.15)
+    pos = nx.spring_layout(G2, pos=pos, weight='weight',
+                           seed=seed, iterations=20, k=0.12)
+    return pos
+
+
+def _get_layout(G: nx.Graph, layout: str, seed: int = 42) -> dict:
+    """Dispatch helper: 'circular' → _circular_group_layout,
+                        'terrain'  → _terrain_layout."""
+    if layout == 'terrain':
+        return _terrain_layout(G, seed=seed)
+    return _circular_group_layout(G, seed=seed)
+
+
 def plot_network_snapshot(
     G: nx.Graph,
     state: dict,
@@ -204,8 +265,11 @@ def _step_n(G, state0, calib_set, steps,
 
 def plot_snapshot_trio(N=100, K=4, p_in=0.6, p_out=0.02,
                        attack_count=10, calib_count=0,
-                       seed=7, save=True):
-    """Three panels: t=0, t=10, converged. Uses strong parameters to show spread."""
+                       seed=7, save=True, layout='circular'):
+    """Three panels: t=0, t=10, converged. Uses strong parameters to show spread.
+
+    layout: 'circular' (default) | 'terrain' (realistic scattered deployment)
+    """
     np.random.seed(seed)
     G = generate_network(N, K, p_in, p_out, seed=seed)
     state0, calib = initialize_agents(
@@ -215,7 +279,7 @@ def plot_snapshot_trio(N=100, K=4, p_in=0.6, p_out=0.02,
     state_fin = _step_n(G, state0, calib, 200)
 
     fig, axes = plt.subplots(1, 3, figsize=(20, 7))
-    pos = _circular_group_layout(G, seed=seed)
+    pos = _get_layout(G, layout, seed=seed)
     h = p_in / p_out
 
     plot_network_snapshot(G, state0, calib, pos=pos,
@@ -242,8 +306,12 @@ def plot_snapshot_trio(N=100, K=4, p_in=0.6, p_out=0.02,
     print("  Network snapshot trio saved ✓")
 
 
-def plot_homophily_compare(N=80, K=4, attack_count=2, seed=42, save=True):
-    """Low h vs high h — shows structural difference clearly."""
+def plot_homophily_compare(N=80, K=4, attack_count=2, seed=42, save=True,
+                           layout='circular'):
+    """Low h vs high h — shows structural difference clearly.
+
+    layout: 'circular' (default) | 'terrain'
+    """
     np.random.seed(seed)
     configs = [
         ('Low homophily  h = 2  (well-connected)',  0.6, 0.30),
@@ -254,7 +322,7 @@ def plot_homophily_compare(N=80, K=4, attack_count=2, seed=42, save=True):
         G = generate_network(N, K, p_in, p_out, seed=seed)
         state, calib = initialize_agents(
             G, attack_count, 'concentrated', 0, 'scattered', K)
-        pos = _circular_group_layout(G, seed=seed)
+        pos = _get_layout(G, layout, seed=seed)
         plot_network_snapshot(G, state, calib, pos=pos, title=label, ax=ax)
 
     plt.suptitle('Network Structure: Low vs High Homophily\n'
@@ -270,11 +338,14 @@ def plot_homophily_compare(N=80, K=4, attack_count=2, seed=42, save=True):
 
 
 def plot_infection_progression(N=100, K=4, p_out=0.02, attack_count=10,
-                                n_steps=6, seed=7, save=True):
+                                n_steps=6, seed=7, save=True,
+                                layout='circular'):
     """
-    NEW: 2-row grid showing infection spreading step by step.
+    2-row grid showing infection spreading step by step.
     Row 1: low homophily (h=2)   Row 2: high homophily (h=20)
     Directly shows how homophily traps errors.
+
+    layout: 'circular' (default) | 'terrain'
     """
     np.random.seed(seed)
     steps_to_show = [0, 3, 6, 10, 20, 50]
@@ -290,7 +361,7 @@ def plot_infection_progression(N=100, K=4, p_out=0.02, attack_count=10,
         G = generate_network(N, K, p_in, p_out_val, seed=seed)
         state0, calib = initialize_agents(
             G, attack_count, 'concentrated', 0, 'scattered', K)
-        pos = _circular_group_layout(G, seed=seed)
+        pos = _get_layout(G, layout, seed=seed)
 
         for col, step in enumerate(steps_to_show):
             state_t = _step_n(G, state0, calib, step)
@@ -317,9 +388,49 @@ def plot_infection_progression(N=100, K=4, p_out=0.02, attack_count=10,
     print("  Infection progression grid saved ✓")
 
 
+# ── Realistic (terrain) convenience wrappers ──────────────────────────────────
+
+def plot_snapshot_trio_realistic(save=True, **kwargs):
+    """plot_snapshot_trio with terrain layout — robots scattered like a real field."""
+    out = os.path.join(get_output_dir(), 'network_snapshots_realistic.png')
+    plot_snapshot_trio(save=False, layout='terrain', **kwargs)
+    if save:
+        plt.savefig(out, dpi=150, bbox_inches='tight')
+        print("  Realistic snapshot trio saved ✓")
+    if is_interactive():
+        plt.show()
+
+
+def plot_homophily_compare_realistic(save=True, **kwargs):
+    """plot_homophily_compare with terrain layout."""
+    out = os.path.join(get_output_dir(), 'network_homophily_compare_realistic.png')
+    plot_homophily_compare(save=False, layout='terrain', **kwargs)
+    if save:
+        plt.savefig(out, dpi=150, bbox_inches='tight')
+        print("  Realistic homophily comparison saved ✓")
+    if is_interactive():
+        plt.show()
+
+
+def plot_infection_progression_realistic(save=True, **kwargs):
+    """plot_infection_progression with terrain layout."""
+    out = os.path.join(get_output_dir(), 'network_progression_realistic.png')
+    plot_infection_progression(save=False, layout='terrain', **kwargs)
+    if save:
+        plt.savefig(out, dpi=150, bbox_inches='tight')
+        print("  Realistic infection progression saved ✓")
+    if is_interactive():
+        plt.show()
+
+
 if __name__ == '__main__':
     print("Generating network visualizations...")
+    # Original circular layout
     plot_snapshot_trio()
     plot_homophily_compare()
     plot_infection_progression()
+    # Terrain (realistic) layout
+    plot_snapshot_trio_realistic()
+    plot_homophily_compare_realistic()
+    plot_infection_progression_realistic()
     print("Network visualizations complete ✓")

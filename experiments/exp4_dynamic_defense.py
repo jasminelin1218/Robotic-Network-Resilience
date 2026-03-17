@@ -1,7 +1,33 @@
 """
 experiments/exp4_dynamic_defense.py
 =====================================
-Experiment 4 — Dynamic Defense Efficiency
+Experiment 4 — Dynamic Defense: Adaptive Edge Severance
+
+Narrative position  —  Act 2, step 4
+--------------------------------------
+Motivation (from Exp 5):
+  Exp 5 showed that the trust weight balance (α vs β) shifts the
+  cascade threshold, but does not eliminate cascades.  We need a
+  runtime intervention.  The model supports dynamic defense:
+  when the out-group infected fraction exceeds a threshold h_sev,
+  the squad severs its cross-squad edges for the remainder of the run.
+  This mirrors quarantine protocols in biological or cyber networks.
+
+Hypothesis:
+  Dynamic severance at h_sev ≈ 0.3 will cut peak infection by ≥40%
+  relative to a static (non-severing) network, because it prevents
+  cascade propagation across squad boundaries before it reaches a
+  tipping point.  The optimal h_sev will be low enough to trigger
+  early, but not so low that it also severs recovery pathways.
+
+What we measure:
+  Sweep severance threshold h_sev ∈ [0.3, 0.9].
+  Compare peak and final infection against static baseline.
+
+Handoff → Exp 6:
+  Dynamic defense works — but only in certain (h, attack) regimes.
+  Exp 6 maps the exact boundary: the h_crit curve that separates
+  recovery from collapse across the full 2-D parameter space.
 
 At h=20 (p_out=0.03), attack=10: static gives peak~0.74.
 Dynamic severance at h_sev=0.3 cuts peak to ~0.29 — strong effect.
